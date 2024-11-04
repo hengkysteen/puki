@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:puki/src/core/settings/settings.dart';
 import '../helper/log.dart';
@@ -26,12 +28,13 @@ class PukiFirestore {
       );
     }
 
-    _initializeCollections();
+    message = MessagesCollection(instance);
 
     devLog("PukiFirestore > setInstance | $app");
   }
 
-  Future<void> _initializeCollections() async {
-    message = MessagesCollection(instance);
+  void setTestInstance(FirebaseFirestore testFirestore, {required MessagesCollection mockMessageCollection}) {
+    instance = testFirestore;
+    message = mockMessageCollection;
   }
 }

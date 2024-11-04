@@ -1,5 +1,9 @@
+// coverage:ignore-file
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:puki/src/core/helper/log.dart';
 import 'package:puki/src/core/settings/settings.dart';
+import 'firestore/collections/message.dart';
 import 'firestore/firestore.dart';
 import 'models/settings.dart';
 
@@ -20,5 +24,9 @@ class Puki {
     app = firebaseApp;
     devLog("initialize");
     firestore.setInstance(app);
+  }
+
+  static void initializeTest({required FirebaseFirestore mockFirestore, required MessagesCollection mockMessageCollection, required}) {
+    firestore.setTestInstance(mockFirestore, mockMessageCollection: mockMessageCollection);
   }
 }
