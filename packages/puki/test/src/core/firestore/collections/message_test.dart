@@ -71,6 +71,24 @@ void main() {
     });
 
     group("createMessage", () {
+      test("return message if success", () async {
+        // Arrange
+        const senderId = "1";
+        final room = PmRoom(id: "111", type: "private", users: ["1", "2"]);
+        // Act
+        final message = await Puki.firestore.message.createMessage(
+          senderId: senderId,
+          room: room,
+          messageContent: PmContent(type: "text", message: "Hallo"),
+        );
+        //   Assert
+        expect(message, isA<PmMessage>());
+        expect(message.status, equals(0));
+        expect(message.isSystem, equals(false));
+        expect(message.reply, equals(null));
+        expect(message.content.message, equals("Hallo"));
+      });
+
       test("Throw Exception if senderId is NOT room member", () async {
         // Arrange
         const senderId = "A";
