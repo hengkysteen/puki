@@ -9,8 +9,6 @@ class HomeCore extends StatefulWidget {
 }
 
 class _HomeCoreState extends State<HomeCore> {
- 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +41,7 @@ class _HomeCoreState extends State<HomeCore> {
             title: Text("Create Messages"),
             onTap: () async {
               final message = await Puki.firestore.message.createMessage(
-                senderId: 'A',
+                senderId: '1',
                 room: PmRoom(
                   id: "1",
                   type: "private",
@@ -51,9 +49,35 @@ class _HomeCoreState extends State<HomeCore> {
                 ),
                 messageContent: PmContent(type: "text", message: "Hallo"),
               );
-              print(message);
+              print(message.toJson());
             },
           ),
+          ListTile(
+            title: Text("Delete All Messages"),
+            onTap: () async {
+              await Puki.firestore.message.deleteMessages();
+            },
+          ),
+          StreamBuilder(
+            stream: Puki.firestore.message.streamMyMessages(userId: "1", roomId: "1"),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return SizedBox();
+              final data = snapshot.data;
+              return Column(
+                children: data!
+                    .map((e) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text("ID = ${e.id}"),
+                            Text("Message = ${e.content.message}"),
+                            Text("Visible = ${e.visibleTo}"),
+                          ],
+                        ))
+                    .toList(),
+              );
+            },
+          )
         ],
       ),
     );
