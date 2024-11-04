@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:puki/src/core/helper/fields.dart';
 import 'package:puki/src/core/models/index.dart';
 
