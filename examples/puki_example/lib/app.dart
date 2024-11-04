@@ -8,6 +8,9 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: Config.homePage == "CORE" ? HomeCore() : Home());
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Config.homePage == "CORE" ? HomeCore() : Home(),
+    );
   }
 }
