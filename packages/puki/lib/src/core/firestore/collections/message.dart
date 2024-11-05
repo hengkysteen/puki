@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:puki/src/core/models/index.dart';
+import 'package:puki/puki.dart';
+import 'package:puki/src/core/firestore/collections/room.dart';
 import '../../helper/fields.dart';
 import 'base.dart';
 
@@ -7,6 +8,8 @@ class MessagesCollection extends BaseCollection {
   final FirebaseFirestore _firestore;
 
   MessagesCollection(this._firestore) : super();
+
+  RoomsCollection get _roomsCollection => Puki.firestore.room;
 
   /// Message Collection Reference
   CollectionReference<Map<String, dynamic>> get collection => _firestore.collection(settings.getCollectionPath(F.MESSAGES));
@@ -35,7 +38,7 @@ class MessagesCollection extends BaseCollection {
     required PmRoom room,
     required PmContent messageContent,
     bool isSystem = false,
-    PmReply? repliedToMessage,
+    PmReply? repliedTo,
   }) async {
     if (!room.users.contains(senderId)) throw Exception("Sender ID not found in room");
 
@@ -51,7 +54,7 @@ class MessagesCollection extends BaseCollection {
       id: collection.doc().id,
       readBy: [],
       visibleTo: List<String>.from(room.users),
-      reply: repliedToMessage,
+      reply: repliedTo,
     );
 
     await collection.doc(data.id).set(data.toJson());
@@ -59,7 +62,7 @@ class MessagesCollection extends BaseCollection {
     return data;
   }
 
-  /// Hides a list of messages from the specified [userId] without deleting them.
+  /// Hides a list of messages in [roomId] from the specified [userId] without deleting them.
   /// This is usually used for a "clear chat" functionality.
   Future<void> hideMessages({required String userId, required String roomId, required List<PmMessage> messages}) async {
     final batch = _firestore.batch();
@@ -83,9 +86,79 @@ class MessagesCollection extends BaseCollection {
     }
   }
 
-  /// TODO
-  sendMessage() {}
+  /// Update message status
+  Future<void> updateStatus(String messageId, int status, {WriteBatch? writeBatch}) async {
+    if (writeBatch != null) {
+      return writeBatch.update(collection.doc(messageId), {F.STATUS: status});
+    }
+    return await collection.doc(messageId).update({F.STATUS: status});
+  }
 
-  /// TODO
-  readMessages() {}
+  void readMessages({required String userId, required PmRoom room, required List<PmMessage> messages}) async {
+    // Periksa jika pengguna adalah anggota dari ruangan
+    if (!room.users.contains(userId)) return;
+
+    await Future.delayed(Duration(milliseconds: 500));
+    // Remove messages from the list if the message sender is the current user.
+    messages.removeWhere((e) => e.sender == userId);
+    // Remove messages from the list if the message is marked as a system message.
+    messages.removeWhere((e) => e.isSystem == true);
+    // Remove messages from the list if the current user has already read the message.
+    messages.removeWhere((e) => e.readBy.any((r) => r!.user == userId));
+
+    if (messages.isEmpty) return;
+
+    await Future.delayed(Duration(milliseconds: 500));
+
+    final batch = _firestore.batch();
+
+    for (var message in messages) {
+      // Buat daftar baru dengan pengguna yang sudah membaca termasuk pengguna saat ini
+      List<Map<String, dynamic>> updatedReadBy = List.from(message.readBy.map((r) => r!.toJson()));
+
+      // Tambahkan pengguna saat ini hanya jika belum ada di updatedReadBy
+      if (!updatedReadBy.any((entry) => entry['user'] == userId)) {
+        updatedReadBy.add(PmReadBy(time: Timestamp.now(), user: userId).toJson());
+      }
+
+      // Update seluruh array readBy dengan daftar baru
+      final body = {
+        F.READ_BY: updatedReadBy,
+      };
+
+      batch.update(collection.doc(message.id), body);
+
+      // Logika pembaruan status untuk pesan
+      if (room.type == "private") {
+        batch.update(collection.doc(message.id), {F.STATUS: 2});
+      } else {
+        // Untuk ruangan grup, periksa jika semua anggota (kecuali pengirim) sudah membaca
+        if ((updatedReadBy.length) == (message.users.where((e) => e != message.sender).length)) {
+          batch.update(collection.doc(message.id), {F.STATUS: 2});
+        }
+      }
+
+      _roomsCollection.updateUnreadCount(room: room, userId: userId, operation: "reset");
+    }
+
+    // Commit semua perubahan di Firestore
+    await batch.commit();
+  }
+
+  /// Send Message
+  Future<void> sendMessage({required PmUser user, required PmRoom room, required PmContent content, PmReply? repliedTo, bool isSystem = false}) async {
+    final message = await createMessage(senderId: user.id, room: room, messageContent: content, repliedTo: repliedTo);
+    await Future.delayed(Duration(milliseconds: 500));
+
+    if (!isSystem) {
+      final batch = _firestore.batch();
+
+      await updateStatus(message.id, 1);
+
+      _roomsCollection.updateLastMessage(room, user, content, writeBatch: batch);
+      _roomsCollection.updateUnreadCount(room: room, userId: user.id, operation: "add");
+
+      batch.commit();
+    }
+  }
 }
