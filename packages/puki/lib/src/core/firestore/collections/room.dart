@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/firestore/collections/message.dart';
+import 'package:puki/src/core/helper/log.dart';
 import '../../helper/fields.dart';
 import 'base.dart';
 
@@ -8,8 +10,11 @@ class RoomsCollection extends BaseCollection {
   final FirebaseFirestore _firestore;
   RoomsCollection(this._firestore) : super();
 
+  MessagesCollection get _messagesCollection => Puki.firestore.message;
+
   /// Room Collections Reference
   CollectionReference<Map<String, dynamic>> get collection => _firestore.collection(settings.getCollectionPath("rooms"));
+
   Query<Map<String, dynamic>> _queryRooms(String userId, {bool showUnusedRoom = false}) {
     Query<Map<String, dynamic>> query = collection.where(F.USERS, arrayContains: userId);
     if (!showUnusedRoom) {
@@ -32,6 +37,7 @@ class RoomsCollection extends BaseCollection {
   }
 
   Stream<List<PmRoom>> streamAllUserRooms(String userId, {bool showUnusedRoom = false, bool showInvisibleRoom = false}) {
+    devLog("RoomCollection > streamAllUserRooms | userId = $userId");
     final query = _queryRooms(userId, showUnusedRoom: showUnusedRoom).snapshots();
     return query.map((e) => _parseRooms(e.docs, userId: userId, showInvisibleRoom: showInvisibleRoom));
   }
@@ -64,17 +70,94 @@ class RoomsCollection extends BaseCollection {
     return room;
   }
 
-  String getUnreadField(PmRoom room) {
-    if (room.roomType == PmRoomType.group) {
-      return F.GROUP_UNREAD;
+  Future<PmRoom> createGroupRoom({required PmUser user, required String name, required List<String> memberIds, String? logo}) async {
+    late PmRoom room;
+
+    memberIds
+      ..remove(user.id)
+      ..add(user.id);
+
+    final document = collection.doc();
+
+    final groupData = PmGroup(name: name, createdBy: user.id, unread: {for (var member in memberIds) member: 0}, logo: logo ?? "");
+
+    final lastMessageData = PmLastMessage(name: "system", by: user.id, time: Timestamp.now(), message: "${user.firstName} started a group");
+
+    final body = PmRoom(type: F.GROUP, group: groupData, lastMessage: lastMessageData, id: document.id, users: memberIds);
+
+    await document.set(body.toJson());
+
+    final response = await document.get();
+
+    room = PmRoom.fromJson(response.data() as Map<String, dynamic>);
+
+    return room;
+  }
+
+  Future<void> deleteRoom(String roomId, String userId) async {
+    final batch = _firestore.batch();
+    final messages = await _messagesCollection.getMyMessages(userId: userId, roomId: roomId);
+
+    if (messages.isNotEmpty) {
+      for (var message in messages) {
+        batch.delete(_messagesCollection.collection.doc(message.id));
+      }
     }
+    batch.delete(collection.doc(roomId));
+    batch.commit();
+  }
+
+  Future<void> hideRoom(PmRoom room, String userId) async {
+    final info = PmUserInfo(id: userId, isVisible: false, isRoomMember: true, isAccountDeleted: false);
+
+    await updateUserInfo(userInfo: [info], room: room);
+
+    // If the user hides the room and there are unread messages, the unread count will be reset to 0,
+    if (room.lastMessage!.by != userId) {
+      await updateUnreadCount(room: room, userId: userId, operation: "reset");
+    }
+
+    final messages = await _messagesCollection.getMyMessages(userId: userId, roomId: room.id);
+
+    await _messagesCollection.hideMessages(userId: userId, roomId: room.id, messages: messages);
+  }
+
+  Future<void> updateUserInfo({required List<PmUserInfo> userInfo, required PmRoom room, WriteBatch? writeBatch}) async {
+    List<PmUserInfo> updatedUsersInfo = List.from(room.usersInfo);
+
+    for (var newInfo in userInfo) {
+      int index = updatedUsersInfo.indexWhere((info) => info.id == newInfo.id);
+
+      if (index != -1) {
+        updatedUsersInfo[index] = newInfo;
+      }
+    }
+
+    final updateData = {
+      F.USERS_INFO: updatedUsersInfo.map((info) => info.toJson()).toList(),
+    };
+
+    if (writeBatch != null) {
+      writeBatch.update(collection.doc(room.id), updateData);
+    } else {
+      await collection.doc(room.id).update(updateData);
+    }
+  }
+
+  String getUnreadField(PmRoom room) {
+    if (room.roomType == PmRoomType.group) return F.GROUP_UNREAD;
     return F.PRIVATE_UNREAD;
+  }
+
+  Map<String, dynamic>? getUnreadData(PmRoom room) {
+    if (room.roomType == PmRoomType.group) return room.group!.unread;
+    return room.private!.unread;
   }
 
   /// Updates the unread message count for a specific user in a chat room.
   ///
   /// [operation] usage = 'add', 'subtract', or 'reset'.
-  void updateUnreadCount({required PmRoom room, required String userId, required String operation, WriteBatch? writeBatch}) async {
+  Future<void> updateUnreadCount({required PmRoom room, required String userId, required String operation, WriteBatch? writeBatch}) async {
     // Check if the user is a member of the room
     if (!room.users.contains(userId)) throw Exception('User $userId is not a member of room ${room.id}.');
 

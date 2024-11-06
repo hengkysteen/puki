@@ -4,23 +4,23 @@ class PmSetting {
   /// Firebase Emulator
   ///
   /// eg :  {"host": "localhost", "port": 8080},
-  Map<String, dynamic>? firestoreEmulator;
+  final Map<String, dynamic>? firestoreEmulator;
 
   /// Firestore Collection Prefix
   ///
   /// default `puki_`
-  String firestorePrefix;
+  final String firestorePrefix;
 
   ///  User online/offline listener
-  bool onlineStatusListener;
+  final bool onlineStatusListener;
 
   /// Online status Debounce Duration in milisecond
   ///
   /// default 2000 ,  minimum 1000
-  int onlineStatusDebounceDuration;
+  final int onlineStatusDebounceDuration;
 
   /// Developer log
-  bool showDevLog;
+  final bool showDevLog;
 
   PmSetting({
     this.showDevLog = true,

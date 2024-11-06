@@ -20,8 +20,8 @@ class Puki {
 
   // Metode untuk menginisialisasi
   static Future<void> initialize({required dynamic firebaseApp, PmSetting? settings}) async {
-    PukiSettings.instance.setClientSettings(settings);
     app = firebaseApp;
+    PukiSettings.instance.setClientSettings(settings);
     devLog("initialize");
     firestore.setInstance(app);
   }

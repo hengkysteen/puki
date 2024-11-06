@@ -10,11 +10,13 @@ class PukiSettings {
 
   static PukiSettings get instance => _instance;
 
-  PmSetting client = PmSetting();
+  late final PmSetting client;
 
   void setClientSettings(PmSetting? settings) {
-    if (settings == null) return;
-    client = settings;
+    if (settings == null) {
+      client = PmSetting();
+    }
+    client = settings!;
   }
 
   String getCollectionPath(String collectionName) {

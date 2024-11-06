@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/firestore/collections/room.dart';
+import 'package:puki/src/core/helper/log.dart';
 import '../../helper/fields.dart';
 import 'base.dart';
 
@@ -20,12 +21,19 @@ class MessagesCollection extends BaseCollection {
     return data.exists ? PmMessage.fromJson(data.data()!) : null;
   }
 
-  /// get all messages return `[]` if empty
+  /// Get all messages
   Future<List<PmMessage>> getAllMessages() async {
     final data = await collection.get();
     return data.docs.map((e) => PmMessage.fromJson(e.data())).toList();
   }
 
+  /// Get all user messages in the room
+  Future<List<PmMessage>> getMyMessages({required String userId, required String roomId}) async {
+    final data = await collection.orderBy(F.DATE).where(F.ROOM_ID, isEqualTo: roomId).where(F.VISIBLE_TO, arrayContains: userId).get();
+    return data.docs.map((e) => PmMessage.fromJson(e.data())).toList();
+  }
+
+  /// Stream all user messages in the room
   Stream<List<PmMessage>> streamMyMessages({required String userId, required String roomId}) {
     final query = collection.orderBy(F.DATE).where(F.ROOM_ID, isEqualTo: roomId).where(F.VISIBLE_TO, arrayContains: userId);
     final data = query.snapshots();
@@ -86,7 +94,7 @@ class MessagesCollection extends BaseCollection {
     }
   }
 
-  /// Update message status
+  /// Update message status.  0 = send , 1 = sended , 2 read
   Future<void> updateStatus(String messageId, int status, {WriteBatch? writeBatch}) async {
     if (writeBatch != null) {
       return writeBatch.update(collection.doc(messageId), {F.STATUS: status});
@@ -94,6 +102,7 @@ class MessagesCollection extends BaseCollection {
     return await collection.doc(messageId).update({F.STATUS: status});
   }
 
+  /// Read Messages
   void readMessages({required String userId, required PmRoom room, required List<PmMessage> messages}) async {
     // Periksa jika pengguna adalah anggota dari ruangan
     if (!room.users.contains(userId)) return;
@@ -108,40 +117,32 @@ class MessagesCollection extends BaseCollection {
 
     if (messages.isEmpty) return;
 
+    devLog("MessagesCollection > readMessages");
+
     await Future.delayed(Duration(milliseconds: 500));
 
     final batch = _firestore.batch();
 
     for (var message in messages) {
-      // Buat daftar baru dengan pengguna yang sudah membaca termasuk pengguna saat ini
       List<Map<String, dynamic>> updatedReadBy = List.from(message.readBy.map((r) => r!.toJson()));
 
-      // Tambahkan pengguna saat ini hanya jika belum ada di updatedReadBy
       if (!updatedReadBy.any((entry) => entry['user'] == userId)) {
         updatedReadBy.add(PmReadBy(time: Timestamp.now(), user: userId).toJson());
       }
 
-      // Update seluruh array readBy dengan daftar baru
-      final body = {
-        F.READ_BY: updatedReadBy,
-      };
+      batch.update(collection.doc(message.id), {F.READ_BY: updatedReadBy});
 
-      batch.update(collection.doc(message.id), body);
-
-      // Logika pembaruan status untuk pesan
-      if (room.type == "private") {
-        batch.update(collection.doc(message.id), {F.STATUS: 2});
+      if (room.roomType == PmRoomType.private) {
+        updateStatus(message.id, 2, writeBatch: batch);
       } else {
-        // Untuk ruangan grup, periksa jika semua anggota (kecuali pengirim) sudah membaca
         if ((updatedReadBy.length) == (message.users.where((e) => e != message.sender).length)) {
-          batch.update(collection.doc(message.id), {F.STATUS: 2});
+          updateStatus(message.id, 2, writeBatch: batch);
         }
       }
 
       _roomsCollection.updateUnreadCount(room: room, userId: userId, operation: "reset");
     }
 
-    // Commit semua perubahan di Firestore
     await batch.commit();
   }
 
@@ -152,11 +153,11 @@ class MessagesCollection extends BaseCollection {
 
     if (!isSystem) {
       final batch = _firestore.batch();
-
       await updateStatus(message.id, 1);
-
       _roomsCollection.updateLastMessage(room, user, content, writeBatch: batch);
       _roomsCollection.updateUnreadCount(room: room, userId: user.id, operation: "add");
+      final usersInfo = room.users.where((id) => id != user.id).map((id) => PmUserInfo(id: id, isVisible: true)).toList();
+      _roomsCollection.updateUserInfo(userInfo: usersInfo, room: room, writeBatch: batch);
 
       batch.commit();
     }

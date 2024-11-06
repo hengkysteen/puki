@@ -4,7 +4,7 @@ class PmRoom {
   late final String id;
   late final String type;
   late List<String> users;
-  late List<UserInfo> usersInfo;
+  late List<PmUserInfo> usersInfo;
   late List<String> formerUsers;
   PmPrivate? private;
   PmGroup? group;
@@ -20,7 +20,7 @@ class PmRoom {
     this.group,
     this.lastMessage,
   }) {
-    usersInfo = users.map((userId) => UserInfo(id: userId)).toList();
+    usersInfo = users.map((userId) => PmUserInfo(id: userId)).toList();
   }
 
   PmRoomType get roomType => PmRoomTypeExtention.fromString(type);
@@ -33,7 +33,7 @@ class PmRoom {
     lastMessage = json['last_message'] != null ? PmLastMessage.fromJson(json['last_message']) : null;
     users = List<String>.from(json['users']);
     formerUsers = List<String>.from(json['former_users']);
-    usersInfo = (json['users_info'] as List).map<UserInfo>((e) => UserInfo.fromJson(e)).toList();
+    usersInfo = (json['users_info'] as List).map<PmUserInfo>((e) => PmUserInfo.fromJson(e)).toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -119,20 +119,20 @@ class PmPrivate {
   }
 }
 
-class UserInfo {
+class PmUserInfo {
   late final String id;
   late final bool isRoomMember;
   late final bool isVisible;
   late final bool isAccountDeleted;
 
-  UserInfo({
+  PmUserInfo({
     required this.id,
     this.isRoomMember = true,
     this.isVisible = true,
     this.isAccountDeleted = false,
   });
 
-  UserInfo.fromJson(Map<String, dynamic> json) {
+  PmUserInfo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     isRoomMember = json['is_room_member'];
     isVisible = json['is_visible'];
