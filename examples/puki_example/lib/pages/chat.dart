@@ -1,4 +1,3 @@
-import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
 
@@ -29,11 +28,10 @@ class _ChatPageState extends State<ChatPage> {
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.send),
           onPressed: () {
-            final message = Faker().lorem.sentence();
             Puki.firestore.message.sendMessage(
               user: currentUser,
               room: widget.room,
-              content: PmContent(type: "text", message: message),
+              content: PmContent(type: "text", message: "HI"),
             );
           },
         ),

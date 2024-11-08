@@ -1,4 +1,3 @@
-import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
 import 'package:puki_example/pages/chat.dart';
@@ -50,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   final room = await Puki.firestore.room.createGroupRoom(
                     user: currentuser,
-                    name: "${Faker().animal.name()} Lover",
+                    name: "Fairy Tail",
                     memberIds: Users.dummy.map((e) => e['id'] as String).toList(),
                   );
                   if (!context.mounted) return;
