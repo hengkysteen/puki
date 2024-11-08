@@ -12,7 +12,7 @@ class PmSetting {
   final String firestorePrefix;
 
   ///  User online/offline listener
-  final bool onlineStatusListener;
+  final bool userOnlineStatusListener;
 
   /// Online status Debounce Duration in milisecond
   ///
@@ -24,7 +24,7 @@ class PmSetting {
 
   PmSetting({
     this.showDevLog = true,
-    this.onlineStatusListener = true,
+    this.userOnlineStatusListener = true,
     this.firestoreEmulator,
     this.firestorePrefix = "",
     this.onlineStatusDebounceDuration = 2000,

@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:puki/src/core/helper/log.dart';
 import 'package:puki/src/core/settings/settings.dart';
+import 'package:puki/src/core/user/user.dart';
 import 'firestore/collections/message.dart';
 import 'firestore/firestore.dart';
 import 'models/settings.dart';
@@ -17,12 +18,12 @@ class Puki {
   static dynamic app;
 
   static final PukiFirestore firestore = PukiFirestore();
+  static final PukiUser user = PukiUser();
 
-  // Metode untuk menginisialisasi
   static Future<void> initialize({required dynamic firebaseApp, PmSetting? settings}) async {
     app = firebaseApp;
-    PukiSettings.instance.setClientSettings(settings);
-    devLog("initialize");
+    PukiSettings().setClientSettings(settings);
+    devLog("Puki > initialize");
     firestore.setInstance(app);
   }
 

@@ -8,7 +8,7 @@ class PukiSettings {
 
   PukiSettings._internal();
 
-  static PukiSettings get instance => _instance;
+  factory PukiSettings() => _instance;
 
   late final PmSetting client;
 

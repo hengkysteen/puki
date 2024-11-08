@@ -12,31 +12,32 @@ class PukiFirestore {
 
   PukiFirestore._internal();
 
-  factory PukiFirestore() {
-    return _pukiFirestore;
-  }
+  factory PukiFirestore() => _pukiFirestore;
 
   late final FirebaseFirestore instance;
 
   late final MessagesCollection message;
+
   late final UsersCollection user;
+
   late final RoomsCollection room;
 
-  void setInstance(dynamic app) {
+  void setInstance(dynamic app) async {
     instance = FirebaseFirestore.instanceFor(app: app!);
 
-    if (PukiSettings.instance.client.firestoreEmulator != null) {
+    if (PukiSettings().client.firestoreEmulator != null) {
       instance.useFirestoreEmulator(
-        PukiSettings.instance.client.firestoreEmulator!['host'],
-        PukiSettings.instance.client.firestoreEmulator!['port'],
+        PukiSettings().client.firestoreEmulator!['host'],
+        PukiSettings().client.firestoreEmulator!['port'],
       );
+      devLog("PukiFirestore > setInstance | $app [EMULATOR]");
+    } else {
+      devLog("PukiFirestore > setInstance | $app");
     }
 
     message = MessagesCollection(instance);
     user = UsersCollection(instance);
     room = RoomsCollection(instance);
-
-    devLog("PukiFirestore > setInstance | $app");
   }
 
   void setTestInstance(FirebaseFirestore testFirestore, {required MessagesCollection mockMessageCollection}) {
