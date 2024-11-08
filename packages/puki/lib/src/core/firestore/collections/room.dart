@@ -216,4 +216,21 @@ class RoomsCollection extends BaseCollection {
       writeBatch.update(collection.doc(room.id), data);
     }
   }
+
+  Stream<int> streamTotalUnread(String userId) {
+    final data = streamAllUserRooms(userId);
+    return data.map((room) => getTotalUnread(room, userId));
+  }
+
+  int getTotalUnread(List<PmRoom> rooms, String userId) {
+    int total = 0;
+    for (var d in rooms) {
+      if (d.roomType == PmRoomType.group) {
+        total = total += d.group!.unread![userId] as int;
+      } else {
+        total = total += d.private!.unread![userId] as int;
+      }
+    }
+    return total;
+  }
 }
