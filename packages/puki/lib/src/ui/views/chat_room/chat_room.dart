@@ -48,8 +48,6 @@ class _ChatRoomPageState extends State<PukiChatRoom> {
 
   @override
   void dispose() async {
-    print("ChatRoom disposed");
-
     super.dispose();
   }
 }

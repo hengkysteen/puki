@@ -56,8 +56,6 @@ class PukiChatListItem extends StatelessWidget {
           leading: roomAvatar(room, users!),
           title: roomName(room, users),
           subtitle: _widgetLastMessage(users, room),
-          // TODO
-          // trailing: PukiUiComp.room.unreadCounter(room),
           onTap: () => onTap(room),
           onLongPress: () async => await deleteRoom(context, room),
         );
