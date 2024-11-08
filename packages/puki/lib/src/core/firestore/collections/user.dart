@@ -10,6 +10,8 @@ class UsersCollection extends BaseCollection {
 
   CollectionReference<Map<String, dynamic>> get collection => _firestore.collection(settings.getCollectionPath("users"));
 
+  Future<void> createUser(PmUser user) async => await collection.doc(user.id).set(user.toJson());
+
   Future<PmUser?> getSingleUser(String id) async {
     final snapshot = await collection.doc(id).get();
     return snapshot.exists ? PmUser.fromJson(snapshot.data()!) : null;
@@ -17,16 +19,24 @@ class UsersCollection extends BaseCollection {
 
   Future<List<PmUser>> getAllUsers({List<String>? userIds, bool showDeleted = false}) async {
     if (userIds != null && userIds.isEmpty) throw Exception('userIds can\'t be empty');
+
     late Query<Map<String, dynamic>> query;
+
+    // If userIds is null, return all users
     if (userIds == null) {
       query = collection;
     } else {
       query = collection.where(F.ID, whereIn: userIds);
     }
-    if (showDeleted) {
-      query.where(F.IS_DELETED, isEqualTo: false);
+
+    // If showDeleted is false, filter out deleted users
+    if (!showDeleted) {
+      query = query.where(F.IS_DELETED, isEqualTo: false);
     }
+
     final data = await query.get();
+
+    // Return a list of users from the Firestore snapshot
     return data.docs.map((e) => PmUser.fromJson(e.data())).toList();
   }
 
@@ -45,12 +55,6 @@ class UsersCollection extends BaseCollection {
     }
     return snapshot.map((e) => e.docs.map((d) => PmUser.fromJson(d.data())).toList());
   }
-
-  Future<void> createUser(PmUser user) async => await collection.doc(user.id).set(user.toJson());
-
-  Future<void> updateUser(String id, PmUser user) async => await collection.doc(id).update(user.toJson());
-
-  Future<void> deleteUser(String userId) async => await collection.doc(userId).delete();
 
   Future<void> setOnlineStatus({required String userId, required bool status}) async {
     final data = {F.ONLINE: PmOnline(status: status, lastSeen: DateTime.now().toString()).toJson()};

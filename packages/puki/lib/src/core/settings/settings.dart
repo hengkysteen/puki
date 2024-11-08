@@ -13,10 +13,7 @@ class PukiSettings {
   late final PmSetting client;
 
   void setClientSettings(PmSetting? settings) {
-    if (settings == null) {
-      client = PmSetting();
-    }
-    client = settings!;
+    client = settings ?? PmSetting();
   }
 
   String getCollectionPath(String collectionName) {

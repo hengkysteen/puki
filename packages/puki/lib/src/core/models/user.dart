@@ -5,10 +5,10 @@ class PmUser {
   late String name;
   late String email;
   late String avatar;
-  final PmTyping? typing;
-  final PmOnline? online;
-  final Map<String, dynamic>? userData;
-  bool isDeleted;
+  PmTyping? typing;
+  PmOnline? online;
+  Map<String, dynamic>? userData;
+  late bool isDeleted;
 
   PmUser({
     required this.id,
@@ -23,16 +23,16 @@ class PmUser {
 
   String get firstName => name.split(" ").first;
 
-  factory PmUser.fromJson(Map<String, dynamic> json) => PmUser(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        email: json['email'] as String,
-        avatar: json['avatar'] as String,
-        typing: json['typing'] == null ? null : PmTyping.fromJson(json['typing'] as Map<String, dynamic>),
-        online: json['online'] == null ? null : PmOnline.fromJson(json['online'] as Map<String, dynamic>),
-        userData: json['user_data'] as Map<String, dynamic>?,
-        isDeleted: json['is_deleted'] as bool,
-      );
+  PmUser.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    email = json['email'];
+    avatar = json['avatar'];
+    typing = json['typing'] == null ? null : PmTyping.fromJson(json['typing']);
+    online = json['online'] == null ? null : PmOnline.fromJson(json['online']);
+    userData = json['user_data'];
+    isDeleted = json['is_deleted'];
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

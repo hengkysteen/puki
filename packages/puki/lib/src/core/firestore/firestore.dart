@@ -40,8 +40,15 @@ class PukiFirestore {
     room = RoomsCollection(instance);
   }
 
-  void setTestInstance(FirebaseFirestore testFirestore, {required MessagesCollection mockMessageCollection}) {
+  void setTestInstance({
+    required FirebaseFirestore testFirestore,
+    required MessagesCollection mockMessage,
+    required UsersCollection mockUser,
+    required RoomsCollection mockRoom,
+  }) {
     instance = testFirestore;
-    message = mockMessageCollection;
+    message = mockMessage;
+    user = mockUser;
+    room = mockRoom;
   }
 }

@@ -31,4 +31,4 @@ build/
 
 .flutter-plugins-dependencies
 .flutter-plugins
-coverage/
+coverage/html/

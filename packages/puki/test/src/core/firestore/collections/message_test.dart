@@ -2,6 +2,8 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/firestore/collections/message.dart';
+import 'package:puki/src/core/firestore/collections/room.dart';
+import 'package:puki/src/core/firestore/collections/user.dart';
 import '../../../../data/message.dart';
 
 void main() {
@@ -11,10 +13,14 @@ void main() {
 
   setUpAll(() async {
     fakeFirestore = FakeFirebaseFirestore();
+
     Puki.initializeTest(
       mockFirestore: fakeFirestore,
       mockMessageCollection: MessagesCollection(fakeFirestore),
+      mockRoomCollection: RoomsCollection(fakeFirestore),
+      mockUserCollection: UsersCollection(fakeFirestore),
     );
+
     messagesCollection = Puki.firestore.message;
 
     for (var message in dummyMessages) {
@@ -24,8 +30,6 @@ void main() {
 
   group("MessageCollection", () {
     group("getSingleMessage", () {
-      // 1. Returns the correct message for a given ID
-      // 2. Returns null for non-existent message
       test('Returns the correct message for a given ID', () async {
         // Arrange
         String messageId = "1";
@@ -93,19 +97,20 @@ void main() {
         // Arrange
         const senderId = "A";
         final room = PmRoom(id: "111", type: "private", users: ["1", "2"]);
-        // Act & Assert
-        expect(
-          () async => await Puki.firestore.message.createMessage(
+
+        // Act
+        Future<PmMessage> createMessage() async {
+          return await Puki.firestore.message.createMessage(
             senderId: senderId,
             room: room,
             messageContent: PmContent(type: "text", message: "Hallo"),
-          ),
-          throwsA(isA<Exception>().having(
-            (e) => e.toString(),
-            'err message',
-            contains("Sender ID not found in room"),
-          )),
-        );
+          );
+        }
+
+        Matcher errMsg = throwsA(isA<Exception>().having((e) => e.toString(), 'err message', contains("Sender ID not found in room")));
+
+        // Assert
+        expect(createMessage, errMsg);
       });
     });
   });

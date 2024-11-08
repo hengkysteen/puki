@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 
 class PmRoom {
