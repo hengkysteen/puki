@@ -36,6 +36,8 @@ class _SplashState extends State<Splash> {
     if (user == null) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginPage()));
     } else {
+      await Puki.user.setup(id: user['id']);
+      if (!mounted) return;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage(user: user)));
     }
   }
@@ -65,75 +67,70 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  Future<void> _logout(BuildContext context) async {
+    await Storage.clearUser();
+    await Puki.user.logout();
+    if (!context.mounted) return;
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Splash()));
+  }
+
+  Future<void> startRoom(BuildContext context) async {
+    List<PmUser> users = await Puki.firestore.user.getAllUsers();
+    users.removeWhere((e) => e.id == currentuser.id);
+    if (!context.mounted) return;
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          children: [
+            Visibility(
+              visible: users.isNotEmpty,
+              child: ListTile(
+                title: Text("Create Group"),
+                subtitle: Text("Members = all users"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final room = await Puki.firestore.room.createGroupRoom(
+                    user: currentuser,
+                    name: Faker().animal.name(),
+                    memberIds: Dummy.users.map((e) => e['id'] as String).toList(),
+                  );
+                  if (!context.mounted) return;
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(user: widget.user, room: room)));
+                },
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final user = users[index];
+                  return ListTile(
+                    title: Text(user.name),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final room = await Puki.firestore.room.createPrivateRoom(currentuser.id, user.id);
+                      if (!context.mounted) return;
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(user: widget.user, room: room)));
+                    },
+                  );
+                },
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Hi, ${widget.user['name']}"),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                await Storage.clearUser();
-                if (!context.mounted) return;
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Splash()));
-              },
-              icon: Icon(Icons.logout))
-        ],
+        actions: [IconButton(onPressed: () async => await _logout(context), icon: Icon(Icons.logout))],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.create),
-        onPressed: () {
-          final users = Dummy.users.where((e) => e['id'] != widget.user['id']).toList();
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return Column(
-                children: [
-                  ListTile(
-                    title: Text("Create Group"),
-                    subtitle: Text("Members = all users"),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final room = await Puki.firestore.room.createGroupRoom(
-                        user: currentuser,
-                        name: Faker().animal.name(),
-                        memberIds: Dummy.users.map((e) => e['id'] as String).toList(),
-                      );
-                      if (!context.mounted) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChatPage(user: widget.user, room: room),
-                        ),
-                      );
-                    },
-                  ),
-                  Expanded(
-                      child: ListView.builder(
-                    itemCount: users.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(users[index]['name']),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          final room = await Puki.firestore.room.createPrivateRoom(widget.user['id'], users[index]['id']);
-                          if (!context.mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChatPage(user: widget.user, room: room),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ))
-                ],
-              );
-            },
-          );
-        },
-      ),
+      floatingActionButton: FloatingActionButton(child: Icon(Icons.create), onPressed: () async => await startRoom(context)),
       body: StreamBuilder(
         stream: Puki.firestore.room.streamAllUserRooms(widget.user['id']),
         builder: (context, snapshot) {
@@ -208,14 +205,14 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(title: const Text("Login")),
       body: ListView(
         children: [
-          TextButton(
-            onPressed: () {
-              final user = PmUser(id: "user1", name: "Bokero Keopi", userData: {'role': 'admin'});
+          // TextButton(
+          //   onPressed: () {
+          //     final user = PmUser(id: "user1", name: "Bokero Keopi", userData: {'role': 'admin'});
 
-              Puki.firestore.user.createUser(user);
-            },
-            child: Text("SET USER"),
-          ),
+          //     Puki.firestore.user.createUser(user);
+          //   },
+          //   child: Text("SET USER"),
+          // ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: Dummy.users.map((e) {
@@ -223,7 +220,7 @@ class LoginPage extends StatelessWidget {
                 title: Text(e['name']),
                 subtitle: Text(e['email']),
                 trailing: TextButton(
-                  onPressed: () => setUser(context, e, isLogin: true),
+                  onPressed: () async => await setUser(context, e, isLogin: true),
                   child: Text("Login"),
                 ),
               );
@@ -236,6 +233,12 @@ class LoginPage extends StatelessWidget {
 
   Future<void> setUser(BuildContext context, Map<String, dynamic> user, {bool isLogin = true}) async {
     await Storage.saveUser(user);
+    await Puki.user.setup(
+      id: user['id'],
+      name: user['name'],
+      email: user['email'],
+      avatar: user['avatar'],
+    );
     if (!context.mounted) return;
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage(user: user)));
   }
@@ -316,49 +319,49 @@ class Dummy {
     {
       "id": "1",
       "name": "Gildarts Clivex",
-      "email": "gildartsclive@fckit.com",
+      "email": "gildartsclive@puki.com",
       "avatar": 'https://i.ibb.co.com/0hLhs05/gildart.jpg',
       "password": "123123",
     },
     {
       "id": '2',
       "name": "Juvia Lockser",
-      "email": "juvialockser@fckit.com",
+      "email": "juvialockser@puki.com",
       "avatar": 'https://drive.google.com/uc?export=download&id=1PKAsORqs9e3gbKOtmYTJgFPFyAY3yHjN',
       "password": "123123",
     },
     {
       "id": '3',
       "name": "Erza Scarlet",
-      "email": "erzascarlet@fckit.com",
+      "email": "erzascarlet@puki.com",
       "avatar": 'https://i.ibb.co.com/M953zff/erza.jpg',
       "password": "123123",
     },
     {
       "id": '4',
       "name": "Makarov Dreyar",
-      "email": "makarovdreyar@fckit.com",
+      "email": "makarovdreyar@puki.com",
       "avatar": 'https://i.ibb.co.com/BKw3ZYw/makarov.jpg',
       "password": "123123",
     },
     {
       "id": "5",
       "name": "Natsu Dragneel",
-      "email": "natsudragneel@fckit.com",
+      "email": "natsudragneel@puki.com",
       "avatar": '',
       "password": "123123",
     },
     {
       "id": "6",
       "name": "Gray Fullbuster",
-      "email": "grayfullbuster@fckit.com",
+      "email": "grayfullbuster@puki.com",
       "avatar": 'https://i.ibb.co.com/L9yFjVC/gray.jpg',
       "password": "123123",
     },
     {
       "id": "7",
       "name": "Happy",
-      "email": "happy@fckit.com",
+      "email": "happy@puki.com",
       "avatar": "",
       "password": "123123",
     }

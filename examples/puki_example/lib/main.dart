@@ -6,11 +6,12 @@ import 'app.dart';
 
 class Config {
   static const bool isDevMode = true;
-  static const String homePage = "CORE";
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  print("IS DEV MODE = ${Config.isDevMode}");
 
   late FirebaseApp app;
 
@@ -18,11 +19,13 @@ void main() async {
 
   final settings = PmSetting(
     showDevLog: true,
-    onlineStatusListener: false,
+    userOnlineStatusListener: false,
     firestoreEmulator: Config.isDevMode ? {"host": "localhost", "port": 8080} : null,
   );
 
   await Puki.initialize(firebaseApp: app, settings: settings);
+
+  print(Puki.firestore.message.settings.client.firestoreEmulator);
 
   runApp(const App());
 }
