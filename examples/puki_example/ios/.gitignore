@@ -35,3 +35,4 @@ Runner/GeneratedPluginRegistrant.*
 
 
 /Runner/GoogleService-Info.plist
+.DS_Store

@@ -32,3 +32,4 @@ build/
 .flutter-plugins-dependencies
 .flutter-plugins
 coverage/html/
+.DS_Store
