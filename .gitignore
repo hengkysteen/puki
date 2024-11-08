@@ -3,3 +3,5 @@ emulator/
 .vscode
 notes.txt
 .DS_Store
+packages/.DS_Store
+examples/.DS_Store
