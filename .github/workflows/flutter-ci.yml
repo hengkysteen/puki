@@ -28,9 +28,11 @@ jobs:
         working-directory: packages/puki # Run tests inside the 'packages/puki' directory
 
       # Upload coverage to Codecov
+
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./packages/puki/coverage/lcov.info # Path to the coverage file inside the 'puki' package
 
 
