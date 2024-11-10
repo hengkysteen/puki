@@ -33,6 +33,7 @@ class LoginPage extends StatelessWidget {
   }
 
   Future<void> setUser(BuildContext context, Map<String, dynamic> user, {bool isLogin = true}) async {
+    Users.setCurrentUser(user);
     await Storage.saveUser(user);
     await Puki.user.setup(id: user['id'], name: user['name'], email: user['email'], avatar: user['avatar']);
     if (!context.mounted) return;

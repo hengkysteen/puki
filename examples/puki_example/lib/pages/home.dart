@@ -84,6 +84,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         leading: IconButton(onPressed: () async => await _logout(context), icon: Icon(Icons.logout)),
         title: Text("Hi, ${widget.user['name']}"),
         actions: [
@@ -95,7 +96,6 @@ class _HomePageState extends State<HomePage> {
           SizedBox(width: 8)
         ],
       ),
-      floatingActionButton: FloatingActionButton(child: Icon(Icons.create), onPressed: () async => await startRoom(context)),
     );
   }
 }

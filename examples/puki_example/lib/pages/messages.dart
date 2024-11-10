@@ -11,7 +11,7 @@ class MessagesPage extends StatelessWidget {
       appBar: AppBar(title: Text("Messages"), centerTitle: false),
       body: PukiChatList(
         onTap: (room) {
-          final chatPage = PukiChatRoom(room: room);
+          final chatPage = PukiChatRoom(roomId: room.id);
           Navigator.push(context, MaterialPageRoute(builder: (_) => chatPage));
         },
       ),
