@@ -52,6 +52,16 @@ class _UserWidget {
     return status;
   }
 
+  Widget getAvatar(PmUser? user) {
+    if (user == null || user.isDeleted) {
+      return CircleAvatar(backgroundColor: Colors.grey);
+    }
+    return CustomCircleAvatar(
+      firstLetterAvatar: user.firstName[0].toUpperCase(),
+      imageUrl: user.avatar,
+    );
+  }
+
   Widget circleAvatar(PmUser? user, {double? radius, Color? backgroundColor, Color? foregroundColor}) {
     if (user == null || user.isDeleted) {
       return CircleAvatar(backgroundColor: Colors.grey);
@@ -86,23 +96,16 @@ class _UserWidget {
         return Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: effectiveBackgroundColor, boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 0.2,
-              blurRadius: 0.7,
-              offset: const Offset(0, 1),
-            ),
-          ]),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: effectiveBackgroundColor,
+            boxShadow: [
+              BoxShadow(color: Colors.grey.withOpacity(0.5), spreadRadius: 0.2, blurRadius: 0.7, offset: const Offset(0, 1)),
+            ],
+          ),
           child: ClipOval(
             child: user.avatar.isEmpty
-                ? Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      user.name[0].toUpperCase(),
-                      style: textStyle,
-                    ),
-                  )
+                ? Container(alignment: Alignment.center, child: Text(user.name[0].toUpperCase(), style: textStyle))
                 : Image.network(
                     user.avatar,
                     errorBuilder: (context, url, error) {

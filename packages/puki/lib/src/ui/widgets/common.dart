@@ -23,3 +23,8 @@ void showSnackBar(BuildContext context, String msg, {int seconds = 1}) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), duration: Duration(seconds: seconds)));
 }
+
+Color getPrimaryColor(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.useMaterial3 ? theme.colorScheme.primary : theme.primaryColor;
+}

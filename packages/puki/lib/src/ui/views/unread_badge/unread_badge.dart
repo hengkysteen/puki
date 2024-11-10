@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/ui/utils/validators.dart';
 
 /// A widget that displays a badge indicating the total number of unread messages
 /// across all rooms for the current user.
@@ -15,8 +16,7 @@ class PukiUnreadBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Puki.user.currentUser == null) throw Exception('Please call Puki.user.setup before use this widget');
-
+    validateCurrentUser();
     return StreamBuilder(
       stream: Puki.firestore.room.streamTotalUnread(Puki.user.currentUser!.id),
       builder: (context, snapshot) {

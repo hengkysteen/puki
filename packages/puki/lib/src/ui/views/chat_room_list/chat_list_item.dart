@@ -6,14 +6,15 @@ import 'package:puki/src/ui/widgets/common.dart';
 
 class PukiChatListItem extends StatelessWidget {
   final PmRoom room;
-  final void Function(PmRoom room) onTap;
+  final void Function(PmRoom room)? onTap;
+  final void Function(PmRoom room)? overrideLongPress;
 
-  const PukiChatListItem({super.key, required this.room, required this.onTap});
+  const PukiChatListItem({super.key, required this.room, this.onTap, this.overrideLongPress});
 
   Widget _widgetLastMessage(List<PmUser?> users, PmRoom room) {
     String text = room.lastMessage?.message ?? '';
 
-    String? typingStatus = PukiUiComp.user.memberTypingStatus(users, room.id);
+    String? typingStatus = PukiComp.user.memberTypingStatus(users, room.id);
 
     if (typingStatus != null) {
       return Text(typingStatus, maxLines: 1, overflow: TextOverflow.ellipsis);
@@ -32,23 +33,24 @@ class PukiChatListItem extends StatelessWidget {
 
   Widget roomAvatar(PmRoom room, List<PmUser> users) {
     if (room.type == "group") {
-      // return PukiUiComp.room.groupLogo(room.group!);
-      return CircleAvatar();
+      return PukiComp.room.groupAvatar(room.group!);
     }
 
     final receiver = users.firstWhereOrNull((e) => e.id != Puki.user.currentUser!.id);
-    return PukiUiComp.user.circleAvatar(receiver);
+    return PukiComp.user.getAvatar(receiver);
   }
 
   @override
   Widget build(BuildContext context) {
-    // REMOVE CURRENT USER FROM STREAM
-    room.users.removeWhere((userId) => userId == Puki.user.currentUser!.id);
+    // COPY USERS FROM ROOM
+    final List<String> members = List.from(room.users);
+    // REMOVE CURRENT USER FROM MEMBERS
+    members.removeWhere((userId) => userId == Puki.user.currentUser!.id);
 
     return StreamBuilder(
-      stream: Puki.firestore.user.streamAllUsers(userIds: room.users),
+      stream: Puki.firestore.user.streamAllUsers(userIds: members),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {}
+        if (snapshot.hasError) throw Exception(snapshot.error.toString());
         if (!snapshot.hasData) return const Center();
         final users = snapshot.data;
 
@@ -56,8 +58,9 @@ class PukiChatListItem extends StatelessWidget {
           leading: roomAvatar(room, users!),
           title: roomName(room, users),
           subtitle: _widgetLastMessage(users, room),
-          onTap: () => onTap(room),
-          onLongPress: () async => await deleteRoom(context, room),
+          trailing: PukiComp.room.unreadXlastMessageTime(room),
+          onTap: onTap == null ? null : () => onTap!(room),
+          onLongPress: overrideLongPress == null ? () async => await deleteRoom(context, room) : () => overrideLongPress!(room),
         );
       },
     );
