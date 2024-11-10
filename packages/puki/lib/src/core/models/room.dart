@@ -27,6 +27,16 @@ class PmRoom {
 
   PmRoomType get roomType => PmRoomTypeExtention.fromString(type);
 
+  String get unreadField {
+    return roomType == PmRoomType.private ? "private.unread" : "group.unread";
+  }
+
+  Map<String, int>? get unreadData {
+    final unreadMap = roomType == PmRoomType.private ? private?.unread : group?.unread;
+    // Convert `unreadMap` to `Map<String, int>` if `unreadMap` not null
+    return unreadMap?.map((key, value) => MapEntry(key, value is int ? value : int.parse(value.toString())));
+  }
+
   PmRoom.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     type = json['type'];
