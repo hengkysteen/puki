@@ -1,6 +1,8 @@
 part of 'component.dart';
 
 class _UserWidget {
+
+  
   String? memberTypingStatus(List<PmUser?> users, String roomId) {
     List<PmUser?> members = List.from(users);
 
@@ -36,7 +38,7 @@ class _UserWidget {
     if (room.id == user.typing?.roomId && user.typing!.status!) {
       status = 'typing ...';
     } else if (user.online == null) {
-      status = 'Never Seen';
+      status = '';
     } else if (user.online!.status!) {
       status = 'online';
     } else {
@@ -59,65 +61,6 @@ class _UserWidget {
     return CustomCircleAvatar(
       firstLetterAvatar: user.firstName[0].toUpperCase(),
       imageUrl: user.avatar,
-    );
-  }
-
-  Widget circleAvatar(PmUser? user, {double? radius, Color? backgroundColor, Color? foregroundColor}) {
-    if (user == null || user.isDeleted) {
-      return CircleAvatar(backgroundColor: Colors.grey);
-    }
-
-    return Builder(
-      builder: (context) {
-        final ThemeData theme = Theme.of(context);
-        TextStyle textStyle = theme.primaryTextTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600);
-        Color? effectiveBackgroundColor = backgroundColor;
-
-        if (effectiveBackgroundColor == null) {
-          switch (ThemeData.estimateBrightnessForColor(textStyle.color!)) {
-            case Brightness.dark:
-              effectiveBackgroundColor = theme.primaryColorLight;
-              break;
-            case Brightness.light:
-              effectiveBackgroundColor = theme.primaryColorDark;
-              break;
-          }
-        } else if (foregroundColor == null) {
-          switch (ThemeData.estimateBrightnessForColor(backgroundColor!)) {
-            case Brightness.dark:
-              textStyle = textStyle.copyWith(color: theme.primaryColorLight);
-              break;
-            case Brightness.light:
-              textStyle = textStyle.copyWith(color: theme.primaryColorDark);
-              break;
-          }
-        }
-
-        return Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: effectiveBackgroundColor,
-            boxShadow: [
-              BoxShadow(color: Colors.grey.withOpacity(0.5), spreadRadius: 0.2, blurRadius: 0.7, offset: const Offset(0, 1)),
-            ],
-          ),
-          child: ClipOval(
-            child: user.avatar.isEmpty
-                ? Container(alignment: Alignment.center, child: Text(user.name[0].toUpperCase(), style: textStyle))
-                : Image.network(
-                    user.avatar,
-                    errorBuilder: (context, url, error) {
-                      return Container(
-                        color: Colors.grey[200],
-                        child: Center(child: Icon(Icons.broken_image_sharp, color: Colors.grey[400])),
-                      );
-                    },
-                  ),
-          ),
-        );
-      },
     );
   }
 }

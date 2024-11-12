@@ -63,8 +63,9 @@ class UsersCollection extends BaseCollection {
 
   Future<void> setTypingStatus({required String userId, required String? roomId, required bool status, WriteBatch? writeBatch}) async {
     final data = {F.TYPING: PmTyping(status: status, roomId: roomId).toJson()};
+
     if (writeBatch == null) {
-      await collection.doc(userId).update(data);
+      collection.doc(userId).update(data);
     } else {
       writeBatch.update(collection.doc(userId), data);
     }

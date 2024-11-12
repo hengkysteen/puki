@@ -14,7 +14,6 @@ dependencies:
   universal_html: ^2.0.9
   get: ^4.6.6
   wee_kit: ^2.0.3
-  faker: ^2.2.0
  
 
 dev_dependencies:

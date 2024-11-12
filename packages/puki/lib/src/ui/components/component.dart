@@ -7,6 +7,8 @@ import 'package:wee_kit/wee_kit.dart';
 
 part 'user.dart';
 part 'room.dart';
+part 'message.dart';
+part 'input.dart';
 
 class PukiComp {
   static final PukiComp _instance = PukiComp._internal();
@@ -19,4 +21,6 @@ class PukiComp {
 
   static final user = _UserWidget();
   static final room = _RoomWidget();
+  static final message = _MessageWidget();
+  static final input = _InputWidget();
 }

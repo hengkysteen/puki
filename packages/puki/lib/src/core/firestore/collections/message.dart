@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/firestore/collections/room.dart';
+import 'package:puki/src/core/firestore/collections/user.dart';
 import 'package:puki/src/core/helper/log.dart';
 import '../../helper/fields.dart';
 import 'base.dart';
@@ -11,6 +12,7 @@ class MessagesCollection extends BaseCollection {
   MessagesCollection(this._firestore) : super();
 
   RoomsCollection get _roomsCollection => Puki.firestore.room;
+  UsersCollection get _userCollection => Puki.firestore.user;
 
   /// Message Collection Reference
   CollectionReference<Map<String, dynamic>> get collection => _firestore.collection(settings.getCollectionPath(F.MESSAGES));
@@ -154,11 +156,11 @@ class MessagesCollection extends BaseCollection {
     if (!isSystem) {
       final batch = _firestore.batch();
       await updateStatus(message.id, 1);
+      _userCollection.setTypingStatus(roomId: room.id, status: false, userId: user.id, writeBatch: batch);
       _roomsCollection.updateLastMessage(room, user, content, writeBatch: batch);
       _roomsCollection.updateUnreadCount(room: room, userId: user.id, operation: "add");
       final usersInfo = room.users.where((id) => id != user.id).map((id) => PmUserInfo(id: id, isVisible: true)).toList();
       _roomsCollection.updateUserInfo(userInfo: usersInfo, room: room, writeBatch: batch);
-
       batch.commit();
     }
   }

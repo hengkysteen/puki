@@ -1,10 +1,11 @@
 part of 'component.dart';
 
 class _RoomWidget {
-  Widget groupAvatar(PmGroup group) {
+  Widget groupAvatar(PmGroup group, {bool showShadow = true}) {
     return CustomCircleAvatar(
       firstLetterAvatar: group.name[0].toUpperCase(),
       imageUrl: group.logo,
+      showShadow: showShadow,
     );
   }
 
@@ -26,9 +27,10 @@ class _RoomWidget {
     final unread = room.unreadData![Puki.user.currentUser!.id];
     return Builder(builder: (context) {
       return Badge.count(
-        count: 1000,
+        smallSize: 16,
+        count: unread!,
         backgroundColor: getPrimaryColor(context),
-        isLabelVisible: room.lastMessage!.by != Puki.user.currentUser!.id && unread! > 0,
+        isLabelVisible: room.lastMessage!.by != Puki.user.currentUser!.id && unread > 0,
       );
     });
   }

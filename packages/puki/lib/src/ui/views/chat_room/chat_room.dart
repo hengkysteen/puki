@@ -1,46 +1,70 @@
-import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/ui/controllers/chat.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
+import 'package:puki/src/ui/views/chat_room/appbar/appbar.dart';
+import 'package:puki/src/ui/views/chat_room/bubble/bubble.dart';
+import 'package:puki/src/ui/views/chat_room/input/input.dart';
 
 import '../../assets/assets.dart';
 
 class PukiChatRoom extends StatefulWidget {
   final String? roomId;
   final PmCreateRoom? createRoom;
-  const PukiChatRoom({super.key, this.roomId, this.createRoom});
+  final void Function(PmContent content)? onMessageSended;
+  final List<PmInputType> registerInputs;
+
+  const PukiChatRoom({
+    super.key,
+    this.roomId,
+    this.createRoom,
+    this.onMessageSended,
+    this.registerInputs = const [],
+  });
 
   @override
   State<PukiChatRoom> createState() => _ChatRoomPageState();
 }
 
 class _ChatRoomPageState extends State<PukiChatRoom> {
+  FocusNode focusNode = FocusNode();
   @override
   void initState() {
     super.initState();
     Controller.register();
+    Controller.input.addNewInput(widget.registerInputs);
     Controller.chatRoom.setup(widget.roomId, widget.createRoom);
+  }
+
+  Widget _blankWidget({Widget? child}) {
+    return Scaffold(body: Center(child: child));
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        image: DecorationImage(image: AssetImage(Assets.roomBackground, package: 'puki'), fit: BoxFit.cover),
+        image: DecorationImage(
+          image: AssetImage(Assets.roomBackground, package: 'puki'),
+          fit: BoxFit.cover,
+        ),
       ),
       child: GestureDetector(
-        onTap: Controller.chatRoom.focusNode.unfocus,
+        onTap: () {
+          Controller.input.focusNode.unfocus();
+        },
         child: GetBuilder<ChatRoomController>(
           builder: (_) {
-            if (Controller.chatRoom.isLoading == true) return SizedBox();
+            if (Controller.chatRoom.isLoading == true) return _blankWidget();
 
-            if (Controller.chatRoom.chat == null) return SizedBox();
+            if (Controller.chatRoom.chat == null) return _blankWidget(child: Text("Something went wrong"));
+
+            final data = Controller.chatRoom.chat;
 
             return Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.5),
-              appBar: AppBar(),
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+              appBar: ChatRoomAppbar(data: data!),
               body: Column(
                 children: [
                   Expanded(
@@ -56,21 +80,28 @@ class _ChatRoomPageState extends State<PukiChatRoom> {
                             children: [
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 20),
-                                child: Text(groupingMessage.date, style: TextStyle(color: Colors.grey[600])),
+                                child: Text(
+                                  groupingMessage.date,
+                                  style: TextStyle(color: Theme.of(context).textTheme.bodySmall!.color),
+                                ),
                               ),
                               Column(
                                 children: List.generate(groupingMessage.messages!.length, (i) {
                                   final message = groupingMessage.messages![i];
 
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      Text("ID = ${message.id}"),
-                                      Text("Msg = ${message.content.message}"),
-                                      Text("Owner Id = ${message.sender}"),
-                                      Text("Status = ${message.status}"),
-                                      SizedBox(height: 20),
-                                    ],
+                                  final owner = Controller.message.getMessageOwner(message.sender, Controller.chatRoom.chat!);
+
+                                  if (owner == null) return SizedBox();
+
+                                  return ChatRoomBubble(
+                                    message: message,
+                                    messageKey: Controller.message.messageKeys.firstWhere((e) => e.value == message.id),
+                                    messageOwner: owner,
+                                    messageInputType: Controller.input.getInputTypeFromContentType(message.content.type),
+                                    messageOwnerInfo: Controller.message.getMessageOwnerInfo(
+                                      message.sender,
+                                      Controller.chatRoom.chat!.room!.usersInfo,
+                                    ),
                                   );
                                 }).toList(),
                               ),
@@ -80,23 +111,13 @@ class _ChatRoomPageState extends State<PukiChatRoom> {
                       ),
                     ),
                   ),
+                  ChatRoomInput(room: Controller.chatRoom.chat!.room, onMessageSend: widget.onMessageSended)
                 ],
               ),
-              floatingActionButton: FloatingActionButton(child: Icon(Icons.send), onPressed: () async => await sendMessage()),
             );
           },
         ),
       ),
-    );
-  }
-
-  Future<void> sendMessage() async {
-    final message = Faker().lorem.sentence();
-
-    await Puki.firestore.message.sendMessage(
-      user: Puki.user.currentUser!,
-      room: Controller.chatRoom.chat!.room!,
-      content: PmContent(type: "text", message: message),
     );
   }
 

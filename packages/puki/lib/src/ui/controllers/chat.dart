@@ -7,10 +7,10 @@ import 'package:wee_kit/debouncer.dart';
 
 class ChatRoomController extends GetxController {
   final ScrollController scrollController = ScrollController();
-  final FocusNode focusNode = FocusNode();
   bool isLoading = false;
   StreamSubscription<PmRoom>? _roomSubscription;
   StreamSubscription<List<PmMessage>>? _messagesSubscription;
+  StreamSubscription<List<PmUser>>? _usersSubscription;
   PmChat? chat;
 
   List<PmGroupingMessages> get dataGrouping => Controller.message.groupMessageByDate(chat!.messages);
@@ -40,8 +40,8 @@ class ChatRoomController extends GetxController {
     _roomSubscription = Puki.firestore.room.streamSingleRoom(roomId).listen((room) async {
       chat!.room = room;
       update();
-
-      await _initializeMessagesListener();
+      _initializeUsersListener();
+      _initializeMessagesListener();
 
       if (chat!.room!.formerUsers.isNotEmpty) {
         final former = await Puki.firestore.user.getAllUsers(userIds: chat!.room!.formerUsers);
@@ -51,12 +51,11 @@ class ChatRoomController extends GetxController {
     });
   }
 
-  Future<void> _initializeMessagesListener() async {
+  void _initializeMessagesListener() {
     _messagesSubscription = Puki.firestore.message.streamMyMessages(userId: Puki.user.currentUser!.id, roomId: chat!.room!.id).listen((messages) {
       if (chat != null) {
         chat!.messages = messages;
         update();
-
         WeeDebouncer.executeOnce(() {
           Puki.firestore.message.readMessages(
             userId: Puki.user.currentUser!.id,
@@ -68,10 +67,28 @@ class ChatRoomController extends GetxController {
     });
   }
 
+  void _initializeUsersListener() {
+    if (chat != null) {
+      _usersSubscription = Puki.firestore.user.streamAllUsers(userIds: chat!.room!.users).listen((users) {
+        if (chat != null) {
+          chat!.members = users;
+          update();
+        }
+      });
+    }
+  }
+
   void reset() {
     _roomSubscription?.cancel();
     _messagesSubscription?.cancel();
+    _usersSubscription?.cancel();
     isLoading = false;
     chat = null;
+  }
+
+  @override
+  void onClose() {
+    reset();
+    super.onClose();
   }
 }

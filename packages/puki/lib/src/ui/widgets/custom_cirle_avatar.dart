@@ -5,6 +5,9 @@ class CustomCircleAvatar extends StatelessWidget {
   final String firstLetterAvatar;
   final double radius;
   final Color? backgroundColor;
+  final bool showShadow;
+  final Color? borderColor;
+  final double borderWidth;
 
   const CustomCircleAvatar({
     super.key,
@@ -12,6 +15,9 @@ class CustomCircleAvatar extends StatelessWidget {
     required this.firstLetterAvatar,
     this.radius = 20.0,
     this.backgroundColor,
+    this.showShadow = true,
+    this.borderColor = const Color(0xFFBDBDBD), // set default as Colors.grey[200]
+    this.borderWidth = 1.0,
   });
 
   @override
@@ -28,14 +34,17 @@ class CustomCircleAvatar extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: effectiveBackgroundColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 0.2,
-                blurRadius: 0.7,
-                offset: const Offset(0, 1),
-              ),
-            ],
+            border: Border.all(color: borderColor! , width: borderWidth),
+            boxShadow: showShadow
+                ? [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 0.2,
+                      blurRadius: 0.1,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : [],
           ),
           child: ClipOval(
             child: _buildAvatarContent(context),
@@ -45,7 +54,6 @@ class CustomCircleAvatar extends StatelessWidget {
     );
   }
 
-  // Fungsi untuk menentukan isi dari avatar: gambar atau huruf pertama
   Widget _buildAvatarContent(BuildContext context) {
     if (imageUrl.isNotEmpty) {
       return Image.network(
@@ -70,7 +78,6 @@ class CustomCircleAvatar extends StatelessWidget {
     }
   }
 
-  // Fungsi untuk mendapatkan style teks
   TextStyle _getTextStyle(BuildContext context, ThemeData theme) {
     TextStyle textStyle = theme.primaryTextTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600);
 
@@ -80,7 +87,6 @@ class CustomCircleAvatar extends StatelessWidget {
     return textStyle;
   }
 
-  // Fungsi untuk mendapatkan warna latar belakang
   Color _getBackgroundColor(BuildContext context, ThemeData theme, Color? textColor) {
     Color? effectiveBackgroundColor = backgroundColor;
 
@@ -94,7 +100,6 @@ class CustomCircleAvatar extends StatelessWidget {
     return effectiveBackgroundColor;
   }
 
-  // Fungsi untuk mendapatkan warna fallback background berdasarkan kecerahan
   Color _getFallbackBackgroundColor(BuildContext context, ThemeData theme, Color? textColor) {
     switch (ThemeData.estimateBrightnessForColor(textColor!)) {
       case Brightness.dark:

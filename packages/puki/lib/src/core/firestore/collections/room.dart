@@ -144,24 +144,14 @@ class RoomsCollection extends BaseCollection {
     }
   }
 
-  String getUnreadField(PmRoom room) {
-    if (room.roomType == PmRoomType.group) return F.GROUP_UNREAD;
-    return F.PRIVATE_UNREAD;
-  }
-
-  Map<String, dynamic>? getUnreadData(PmRoom room) {
-    if (room.roomType == PmRoomType.group) return room.group!.unread;
-    return room.private!.unread;
-  }
-
   /// Updates the unread message count for a specific user in a chat room.
   ///
-  /// [operation] usage = 'add', 'subtract', or 'reset'.
+  /// [operation] usage = 'add' or 'reset'.
   Future<void> updateUnreadCount({required PmRoom room, required String userId, required String operation, WriteBatch? writeBatch}) async {
     // Check if the user is a member of the room
     if (!room.users.contains(userId)) throw Exception('User $userId is not a member of room ${room.id}.');
 
-    final unreadField = getUnreadField(room);
+    final unreadField = room.unreadField;
 
     Map<String, dynamic> updateData;
 
@@ -180,18 +170,13 @@ class RoomsCollection extends BaseCollection {
           };
         }
         break;
-      case 'subtract':
-        updateData = {
-          '$unreadField.$userId': FieldValue.increment(-1),
-        };
-        break;
       case 'reset':
         updateData = {
           '$unreadField.$userId': 0,
         };
         break;
       default:
-        throw Exception('Invalid operation: $operation. Use "add", "subtract", or "reset".');
+        throw Exception('Invalid operation: $operation. Use "add" or "reset".');
     }
     if (writeBatch == null) {
       await collection.doc(room.id).update(updateData);
