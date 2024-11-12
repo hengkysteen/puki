@@ -11,15 +11,13 @@ class Config {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  print("IS DEV MODE = ${Config.isDevMode}");
-
   late FirebaseApp app;
 
   app = await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final settings = PmSetting(
     showDevLog: true,
-    userOnlineStatusListener: false,
+    userOnlineStatusListener: true,
     firestoreEmulator: Config.isDevMode ? {"host": "localhost", "port": 8080} : null,
   );
 

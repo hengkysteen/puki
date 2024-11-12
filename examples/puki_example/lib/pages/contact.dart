@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
 import 'package:puki_example/pages/create_group_page.dart';
+import 'package:puki_example/puki_modules/inputs/stickers/stikers.dart';
 import 'package:puki_example/services/users.dart';
 
 enum ContactPageAction { CHAT, GET_USER_ID }
@@ -21,12 +22,19 @@ class _ContactPageState extends State<ContactPage> {
       itemBuilder: (c, i) {
         final contactUser = users[i];
         return ListTile(
-          leading: CircleAvatar(),
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(contactUser.avatar),
+          ),
           title: Text(contactUser.name),
           subtitle: Text(contactUser.email, overflow: TextOverflow.ellipsis),
           onTap: () {
             if (widget.action == ContactPageAction.CHAT) {
-              final target = PukiChatRoom(createRoom: PmCreatePrivateRoom(receiver: contactUser.id));
+              final target = PukiChatRoom(
+                registerInputs: [PukiInputStickers.type],
+                createRoom: PmCreatePrivateRoom(
+                  receiver: contactUser.id,
+                ),
+              );
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
             } else if (widget.action == ContactPageAction.GET_USER_ID) {
               Navigator.pop(context, contactUser);

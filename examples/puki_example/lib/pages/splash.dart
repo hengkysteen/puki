@@ -13,7 +13,7 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   bool isLoading = false;
-
+  String error = "";
   @override
   void initState() {
     setup();
@@ -33,7 +33,16 @@ class _SplashState extends State<Splash> {
       Users.setCurrentUser(user);
 
       /// Puki Package
-      await Puki.user.setup(id: user['id']);
+      try {
+        await Puki.user.setup(id: user['id']);
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+          error = e.toString();
+        });
+
+        return;
+      }
 
       if (!mounted) return;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage(user: user)));
@@ -42,8 +51,14 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: isLoading ? Center(child: CircularProgressIndicator()) : Center(),
-    );
+    return Scaffold(body: Builder(builder: (_) {
+      if (isLoading) return Center(child: CircularProgressIndicator());
+      if (error.isNotEmpty) {
+        return Center(
+          child: Padding(padding: const EdgeInsets.all(20), child: Text(error)),
+        );
+      }
+      return SizedBox();
+    }));
   }
 }

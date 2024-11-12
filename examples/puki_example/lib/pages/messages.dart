@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
 import 'package:puki_example/pages/contact.dart';
+import 'package:puki_example/puki_modules/inputs/stickers/stikers.dart';
 
 class MessagesPage extends StatelessWidget {
   const MessagesPage({super.key});
@@ -11,7 +12,13 @@ class MessagesPage extends StatelessWidget {
       appBar: AppBar(title: Text("Messages"), centerTitle: false),
       body: PukiChatList(
         onTap: (room) {
-          final chatPage = PukiChatRoom(roomId: room.id);
+          final chatPage = PukiChatRoom(
+            registerInputs: [PukiInputStickers.type],
+            roomId: room.id,
+            onMessageSended: (message) {
+              print("RESULT = ${message.toJson()}");
+            },
+          );
           Navigator.push(context, MaterialPageRoute(builder: (_) => chatPage));
         },
       ),
