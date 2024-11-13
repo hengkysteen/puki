@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
 import 'package:puki_example/pages/create_group_page.dart';
+import 'package:puki_example/puki_modules/inputs/camera/photo/photo.dart';
+import 'package:puki_example/puki_modules/inputs/document/document.dart';
 import 'package:puki_example/puki_modules/inputs/stickers/stikers.dart';
 import 'package:puki_example/services/users.dart';
 
@@ -30,7 +32,11 @@ class _ContactPageState extends State<ContactPage> {
           onTap: () {
             if (widget.action == ContactPageAction.CHAT) {
               final target = PukiChatRoom(
-                registerInputs: [PukiInputStickers.type],
+                registerInputs: [
+                  PukiInputStickers.type,
+                  DokumenInput.type,
+                   InputCameraPhoto.type
+                ],
                 createRoom: PmCreatePrivateRoom(
                   receiver: contactUser.id,
                 ),

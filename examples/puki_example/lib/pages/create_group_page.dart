@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
 import 'package:puki_example/pages/contact.dart';
+import 'package:puki_example/puki_modules/inputs/camera/photo/photo.dart';
+import 'package:puki_example/puki_modules/inputs/document/document.dart';
+import 'package:puki_example/puki_modules/inputs/stickers/stikers.dart';
 import 'package:puki_example/services/users.dart';
 
 class CreateGroupPage extends StatefulWidget {
@@ -84,6 +87,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                       Navigator.pop(context);
 
                       final page = PukiChatRoom(
+                        registerInputs: [PukiInputStickers.type, DokumenInput.type, InputCameraPhoto.type],
                         createRoom: PmCreateGroupRoom(
                           name: _nameCtrl.text,
                           createdBy: Users.currentUser!['id'],

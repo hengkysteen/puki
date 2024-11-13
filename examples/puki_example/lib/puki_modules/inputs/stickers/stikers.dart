@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/puki_ui.dart';
 import 'package:puki_example/services/image_cache.dart';
@@ -6,7 +7,7 @@ import 'package:puki_example/services/image_cache.dart';
 class PukiInputStickers {
   static PmInputType type = PmInputType(
     insideBubble: false,
-    icon: Icons.emoji_emotions_outlined,
+    icon: MdiIcons.emoticonCoolOutline,
     name: "Sticker",
     type: "sticker",
     preview: (_, content) {
