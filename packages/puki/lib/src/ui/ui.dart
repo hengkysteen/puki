@@ -12,7 +12,7 @@ class PukiUi {
 
   PukiUi._internal();
 
-  static void sendCustomMessage({required PmRoom room, required PmContent content, required void Function(PmContent) onMessageSended}) {
-    Controller.message.sendMessage(room: room, content: content, onMessageSended: onMessageSended);
+  static Future<void> sendCustomMessage({required PmRoom room, required PmContent content, required void Function(PmContent) onMessageSended}) async {
+    await Controller.message.sendMessage(room: room, content: content, onMessageSended: onMessageSended);
   }
 }

@@ -17,14 +17,19 @@ class InputController extends GetxController {
   }
 
   void addNewInput(List<PmInputType> data) {
+    // Create a set to store unique types
+    final existingTypes = inputTypes.map((e) => e!.type).toSet();
+
+    // Filter new data, ensuring there are no duplicate types
+    for (var item in data) {
+      if (existingTypes.contains(item.type)) {
+        throw ArgumentError("Type '${item.type}' already exists. Each type must be unique.");
+      }
+    }
     inputTypes.clear();
     inputTypes.addAll(data);
-    List inputs = [];
-
-    for (var type in inputTypes) {
-      inputs.add(type!.name);
-    }
-    devLog("InputVm > addNewInput $inputs");
+    inputTypes.sort((a, b) => a!.name.compareTo(b!.name));
+    devLog("InputVm > addNewInput ${inputTypes.map((e) => e!.name).toList()}");
   }
 
   void setInputType(PmInputType? type) {

@@ -178,9 +178,9 @@ class MessageController extends GetxController {
       Controller.input.setIsTyping(false);
     }
 
-    onMessageSended!(content);
-
-    devLog("sendMessage | ${content.toJson()}");
+    if (onMessageSended != null) {
+      onMessageSended(content);
+    }
   }
 
   PmUser? getMessageOwner(String senderId, PmChat data) {
