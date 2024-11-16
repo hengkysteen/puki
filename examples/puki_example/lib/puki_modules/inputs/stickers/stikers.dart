@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/puki_ui.dart';
-import 'package:puki_example/services/image_cache.dart';
+import 'package:puki_example/widgets/image_cache.dart';
 
 class PukiInputStickers {
   static PmInputType type = PmInputType(
@@ -43,7 +43,7 @@ class PukiInputStickers {
                     onTap: () {
                       Navigator.pop(context);
                       final content = PmContent(type: type.type, message: type.name, customData: {"url": _stikersUrl[i]});
-                      PukiUi.sendCustomMessage(room: room, content: content, onMessageSended: (_) {});
+                      PukiUi.sendCustomMessage(room: room, content: content);
                     },
                     child: Center(child: ImageCached.network(_stikersUrl[i])),
                   ),

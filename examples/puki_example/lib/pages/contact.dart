@@ -1,111 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
-import 'package:puki_example/pages/create_group_page.dart';
-import 'package:puki_example/puki_modules/inputs/camera/photo/photo.dart';
-import 'package:puki_example/puki_modules/inputs/document/document.dart';
-import 'package:puki_example/puki_modules/inputs/stickers/stikers.dart';
-import 'package:puki_example/services/users.dart';
+import 'package:puki/puki_ui.dart';
+import 'package:puki_example/puki_modules/inputs/inputs.dart';
+import 'package:puki_example/services/user.dart';
 
-enum ContactPageAction { CHAT, GET_USER_ID }
+import '../widgets/image_cache.dart';
 
-class ContactPage extends StatefulWidget {
-  final ContactPageAction action;
-  const ContactPage({super.key, this.action = ContactPageAction.CHAT});
+enum ContactAction { CHAT, GET_USER_ID }
+
+class Contact extends StatefulWidget {
+  final ContactAction action;
+  const Contact({super.key, this.action = ContactAction.CHAT});
   @override
-  State<ContactPage> createState() => _ContactPageState();
+  State<Contact> createState() => _ContactState();
 }
 
-class _ContactPageState extends State<ContactPage> {
-  List<PmUser> contactUsers = [];
-  bool _isloading = false;
-  Widget _item(BuildContext context, List<PmUser> users) {
-    return ListView.builder(
-      itemCount: users.length,
-      itemBuilder: (c, i) {
-        final contactUser = users[i];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(contactUser.avatar),
-          ),
-          title: Text(contactUser.name),
-          subtitle: Text(contactUser.email, overflow: TextOverflow.ellipsis),
-          onTap: () {
-            if (widget.action == ContactPageAction.CHAT) {
-              final target = PukiChatRoom(
-                registerInputs: [
-                  PukiInputStickers.type,
-                  DokumenInput.type,
-                   InputCameraPhoto.type
-                ],
-                createRoom: PmCreatePrivateRoom(
-                  receiver: contactUser.id,
-                ),
-              );
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
-            } else if (widget.action == ContactPageAction.GET_USER_ID) {
-              Navigator.pop(context, contactUser);
-            }
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getUsers();
-  }
-
-  Future<void> getUsers() async {
-    setState(() {
-      _isloading = true;
-    });
-    final data = await Puki.firestore.user.getAllUsers();
-    if (data.isNotEmpty) {
-      data.removeWhere((e) => e.id == Users.currentUser!['id']);
-      setState(() {
-        contactUsers = data;
-      });
-    }
-    setState(() {
-      _isloading = false;
-    });
-  }
-
+class _ContactState extends State<Contact> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: false, title: Text("Contact")),
-      body: Builder(
-        builder: (context) {
-          if (_isloading) {
-            return Center();
-          }
-          return Column(
-            children: [
-              Visibility(
-                visible: widget.action == ContactPageAction.CHAT,
-                child: ListTile(
-                  leading: CircleAvatar(child: Icon(Icons.group)),
-                  title: Text("New Group"),
-                  subtitle: Text("Create new group"),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => CreateGroupPage()));
-                  },
+      body: FutureBuilder(
+        future: Puki.firestore.user.getAllUsers(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+
+          if (!snapshot.hasData) return SizedBox();
+
+          List<PmUser> users = snapshot.data!;
+
+          users.removeWhere((e) => e.id == UserControl().user!.id);
+
+          if (users.isEmpty) return Center(child: Text("No Contact"));
+
+          return ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (c, i) {
+              final contactUser = users[i];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: ImageCached.networkProvider(contactUser.avatar),
                 ),
-              ),
-              Expanded(child: _item(context, contactUsers)),
-            ],
+                title: Text(contactUser.name),
+                subtitle: Text(contactUser.email, overflow: TextOverflow.ellipsis),
+                onTap: () {
+                  if (widget.action == ContactAction.CHAT) {
+                    final target = PukiChatRoom(
+                      registerInputs: PukiModule.inputs,
+                      createRoom: PmCreatePrivateRoom(receiver: contactUser.id),
+                    );
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
+                  } else if (widget.action == ContactAction.GET_USER_ID) {
+                    Navigator.pop(context, contactUser);
+                  }
+                },
+              );
+            },
           );
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    contactUsers.clear();
-    super.dispose();
   }
 }

@@ -20,7 +20,7 @@ class FirebaseStorageService {
     String fileName = _generateFileName(name);
     String path = isImage ? '$defaultMainPath/images/$fileName' : '$defaultMainPath/files/$fileName';
 
-    Reference firebaseStorageRef = FirebaseStorage.instanceFor(bucket: "gs://puki-package.firebasestorage.app/").ref().child(path);
+    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(path);
     UploadTask uploadTask = firebaseStorageRef.putFile(file);
     TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
 
@@ -109,7 +109,7 @@ class FirebaseStorageService {
   }
 
   static String adjustImageUrlForPlatform({required String url, bool isFirebaseEmulator = false}) {
-    if (isFirebaseEmulator) {
+    if (!isFirebaseEmulator) {
       final uri = Uri.parse(url);
       const adjustedHost = kIsWeb ? 'localhost' : '10.0.2.2';
       return uri.replace(host: adjustedHost).toString();

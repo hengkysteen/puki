@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/puki_ui.dart';
-import 'package:puki_example/main.dart';
+import 'package:puki_example/config.dart';
 import 'package:puki_example/puki_modules/services/firebase_storage/firebase_storage.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -36,7 +36,7 @@ class DokumenInput {
   static Future<void> _onIconTap(BuildContext context, PmRoom room) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'docx', 'doc', 'txt', 'rtf', 'xls', 'xlsx', 'csv', 'ppt', 'pptx','md'],
+      allowedExtensions: ['pdf', 'docx', 'doc', 'txt', 'rtf', 'xls', 'xlsx', 'csv', 'ppt', 'pptx', 'md'],
     );
 
     if (result != null) {
@@ -66,7 +66,7 @@ class DokumenInput {
 
       final content = PmContent(
         type: type.type,
-        message: type.type,
+        message: type.name,
         customData: {"url": downloadUrl, "name": fileName, "extension": extension},
       );
 
@@ -83,7 +83,7 @@ class DokumenInput {
 
       await Future.delayed(Duration(seconds: 1));
 
-      await PukiUi.sendCustomMessage(room: room, content: content, onMessageSended: (_) {});
+      await PukiUi.sendCustomMessage(room: room, content: content);
 
       if (!context.mounted) return;
 
@@ -135,12 +135,10 @@ class DokumenInput {
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.only(top: 1),
-            child: Icon(Icons.attach_file, size: 13, color: Colors.blue),
-          ),
+          Icon(type.icon, size: 14, color: Colors.blue),
           SizedBox(width: 2),
           Flexible(
             child: Text(

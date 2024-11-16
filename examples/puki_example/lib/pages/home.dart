@@ -1,96 +1,55 @@
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
-import 'package:puki_example/pages/chat.dart';
-import 'package:puki_example/pages/messages.dart';
-import 'package:puki_example/pages/splash.dart';
-import 'package:puki_example/services/storage.dart';
-import 'package:puki_example/services/users.dart';
+import 'package:puki/puki_ui.dart';
+import 'package:puki_example/pages/login.dart';
+import 'package:puki_example/pages/message.dart';
+import 'package:puki_example/services/user.dart';
 
-class HomePage extends StatefulWidget {
-  final Map<String, dynamic> user;
-  const HomePage({super.key, required this.user});
+class Home extends StatefulWidget {
+  const Home({super.key});
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _HomePageState extends State<HomePage> {
-  late PmUser currentuser;
+class _HomeState extends State<Home> {
+  bool _loading = false;
 
   @override
   void initState() {
-    setState(() {
-      currentuser = PmUser(id: widget.user['id'], name: widget.user['name']);
-    });
+    setState(() {});
     super.initState();
   }
 
   Future<void> _logout(BuildContext context) async {
-    await Storage.clearUser();
+    setState(() {
+      _loading = true;
+    });
+    await Future.delayed(Duration(seconds: 1));
     await Puki.user.logout();
+    await FirebaseAuth.instance.signOut();
     if (!context.mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Splash()));
-  }
-
-  Future<void> startRoom(BuildContext context) async {
-    List<PmUser> users = await Puki.firestore.user.getAllUsers();
-    users.removeWhere((e) => e.id == currentuser.id);
-    if (!context.mounted) return;
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Column(
-          children: [
-            Visibility(
-              visible: users.isNotEmpty,
-              child: ListTile(
-                title: Text("Create Group"),
-                subtitle: Text("Members = all users"),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final room = await Puki.firestore.room.createGroupRoom(
-                    user: currentuser,
-                    name: "Fairy Tail",
-                    memberIds: Users.dummy.map((e) => e['id'] as String).toList(),
-                  );
-                  if (!context.mounted) return;
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(user: widget.user, room: room)));
-                },
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  final user = users[index];
-                  return ListTile(
-                    title: Text(user.name),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final room = await Puki.firestore.room.createPrivateRoom(currentuser.id, user.id);
-                      if (!context.mounted) return;
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(user: widget.user, room: room)));
-                    },
-                  );
-                },
-              ),
-            )
-          ],
-        );
-      },
-    );
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Login()));
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        leading: IconButton(onPressed: () async => await _logout(context), icon: Icon(Icons.logout)),
-        title: Text("Hi, ${widget.user['name']}"),
+        leading: IconButton(
+          onPressed: () async => await _logout(context),
+          icon: Icon(Icons.logout),
+        ),
+        title: Text("Hi, ${UserControl().user!.name} "),
         actions: [
           PukiUnreadBadge(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => MessagesPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => Message()));
             },
           ),
           SizedBox(width: 8)

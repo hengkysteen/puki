@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/puki_ui.dart';
 import 'package:puki_example/pages/contact.dart';
 import 'package:puki_example/puki_modules/inputs/camera/photo/photo.dart';
 import 'package:puki_example/puki_modules/inputs/document/document.dart';
 import 'package:puki_example/puki_modules/inputs/stickers/stikers.dart';
-import 'package:puki_example/services/users.dart';
+import 'package:puki_example/services/user.dart';
 
 class CreateGroupPage extends StatefulWidget {
   const CreateGroupPage({super.key});
@@ -90,7 +91,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         registerInputs: [PukiInputStickers.type, DokumenInput.type, InputCameraPhoto.type],
                         createRoom: PmCreateGroupRoom(
                           name: _nameCtrl.text,
-                          createdBy: Users.currentUser!['id'],
+                          createdBy: UserControl().user!.id,
                           members: users.map((e) => e.id).toList(),
                         ),
                       );
@@ -107,7 +108,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   }
 
   Future<void> _onTap() async {
-    final user = await Navigator.push(context, MaterialPageRoute(builder: (_) => ContactPage(action: ContactPageAction.GET_USER_ID)));
+    final user = await Navigator.push(context, MaterialPageRoute(builder: (_) => Contact(action: ContactAction.GET_USER_ID)));
 
     if (user != null) {
       setState(() {

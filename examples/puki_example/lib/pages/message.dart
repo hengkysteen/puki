@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:puki/puki.dart';
+import 'package:puki/puki_ui.dart';
 import 'package:puki_example/pages/contact.dart';
-import 'package:puki_example/puki_modules/inputs/camera/photo/photo.dart';
-import 'package:puki_example/puki_modules/inputs/document/document.dart';
-import 'package:puki_example/puki_modules/inputs/stickers/stikers.dart';
+import 'package:puki_example/puki_modules/inputs/inputs.dart';
 
-class MessagesPage extends StatelessWidget {
-  const MessagesPage({super.key});
+class Message extends StatelessWidget {
+  const Message({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Messages"), centerTitle: false),
+      appBar: AppBar(title: Text("Messages"), centerTitle: true),
       body: PukiChatList(
         onTap: (room) {
           final chatPage = PukiChatRoom(
-            registerInputs: [
-              PukiInputStickers.type,
-              DokumenInput.type,
-              InputCameraPhoto.type
-            ],
+            registerInputs: PukiModule.inputs,
             roomId: room.id,
             onMessageSended: (message) {
               print("RESULT = ${message.toJson()}");
@@ -31,7 +25,7 @@ class MessagesPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.people),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => ContactPage()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => Contact()));
         },
       ),
     );

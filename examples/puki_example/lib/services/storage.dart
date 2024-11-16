@@ -1,20 +1,24 @@
 import 'dart:convert';
+
+import 'package:puki_example/services/user.dart' show User;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage {
   static const String _userKey = 'user';
-  static Future<void> saveUser(Map<String, dynamic> userData) async {
+
+  static Future<void> saveUser(User userData) async {
     final prefs = await SharedPreferences.getInstance();
-    String userJson = jsonEncode(userData);
-    await prefs.setString(_userKey, userJson);
+    await prefs.setString(_userKey, jsonEncode(userData.toJson()));
   }
 
-  static Future<Map<String, dynamic>?> getUser() async {
+  static Future<User?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
-    String? userJson = prefs.getString(_userKey);
+
+    final userJson = prefs.getString(_userKey);
     if (userJson != null) {
-      return jsonDecode(userJson);
+      return User.fromJson(jsonDecode(userJson));
     }
+    
     return null;
   }
 

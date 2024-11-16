@@ -6,12 +6,15 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:image_picker/image_picker.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/puki_ui.dart';
+import 'package:puki_example/config.dart';
 import 'package:puki_example/puki_modules/services/firebase_storage/firebase_storage.dart';
-import 'package:puki_example/services/image_cache.dart';
+import 'package:puki_example/widgets/image_cache.dart';
 
 import 'photo_preview.dart';
 
 class InputCameraPhoto {
+  static bool get isFirestoreEmulator => Config.isDevMode;
+
   static final ImagePicker _picker = ImagePicker();
 
   static PmReply? replayToMessage;
@@ -119,6 +122,7 @@ class InputCameraPhoto {
           title: Text("Camera"),
           leading: Icon(MdiIcons.camera),
           onTap: () async {
+            Navigator.pop(context);
             await _pickImage(context, ImageSource.camera, room);
           },
         ),
@@ -127,6 +131,7 @@ class InputCameraPhoto {
           title: Text("Gallery"),
           leading: Icon(MdiIcons.album),
           onTap: () async {
+            Navigator.pop(context);
             await _pickImage(context, ImageSource.gallery, room);
           },
         ),
@@ -146,7 +151,6 @@ class InputCameraPhoto {
         onSend: (caption) async {
           await uploadToStorage(context, image, room, type, caption: caption);
           if (!context.mounted) return;
-          Navigator.pop(context);
         },
       ),
     );
@@ -180,15 +184,11 @@ class InputCameraPhoto {
       rethrow;
     }
 
-    final content = PmContent(
-      type: type.type,
-      message: type.type,
-      customData: {"url": imageUrl, "caption": caption},
-    );
+    final content = PmContent(type: type.type, message: type.name, customData: {"url": imageUrl, "caption": caption});
 
     if (!context.mounted) return;
 
-    PukiUi.sendCustomMessage(room: room, content: content, onMessageSended: (_) {});
+    PukiUi.sendCustomMessage(room: room, content: content);
     Navigator.pop(context);
   }
 }
