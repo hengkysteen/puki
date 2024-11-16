@@ -7,13 +7,20 @@ import 'package:wee_kit/debouncer.dart';
 
 class ChatRoomController extends GetxController {
   final ScrollController scrollController = ScrollController();
+
   bool isLoading = false;
-  StreamSubscription<PmRoom>? _roomSubscription;
-  StreamSubscription<List<PmMessage>>? _messagesSubscription;
-  StreamSubscription<List<PmUser>>? _usersSubscription;
-  PmChat? chat;
+
+  void Function(PmContent content)? clientCallBackOnMessageSended;
 
   List<PmGroupingMessages> get dataGrouping => Controller.message.groupMessageByDate(chat!.messages);
+
+  StreamSubscription<PmRoom>? _roomSubscription;
+
+  StreamSubscription<List<PmUser>>? _usersSubscription;
+
+  StreamSubscription<List<PmMessage>>? _messagesSubscription;
+
+  PmChat? chat;
 
   Future<void> setup(String? roomId, PmCreateRoom? createRoom) async {
     if (roomId != null && createRoom != null) throw Exception("Can't use both roomId and createRoom");
@@ -37,18 +44,32 @@ class ChatRoomController extends GetxController {
   Future<void> startListener(String roomId) async {
     chat = PmChat(room: null, messages: [], members: [], formerMembers: []);
     update();
-    _roomSubscription = Puki.firestore.room.streamSingleRoom(roomId).listen((room) async {
-      chat!.room = room;
-      update();
+
+    final roomStream = Puki.firestore.room.streamSingleRoom(roomId);
+
+    _roomSubscription = roomStream.listen(
+      (room) {
+        chat!.room = room;
+        update();
+
+        if (chat!.room!.formerUsers.isNotEmpty) {
+          Puki.firestore.user.getAllUsers(userIds: chat!.room!.formerUsers).then((former) {
+            chat!.formerMembers = former;
+            update();
+          });
+        }
+      },
+      onError: (error) {
+        print('Error in room stream: $error');
+      },
+    );
+
+    await roomStream.first;
+
+    if (chat!.room != null) {
       _initializeUsersListener();
       _initializeMessagesListener();
-
-      if (chat!.room!.formerUsers.isNotEmpty) {
-        final former = await Puki.firestore.user.getAllUsers(userIds: chat!.room!.formerUsers);
-        chat!.formerMembers = former;
-        update();
-      }
-    });
+    }
   }
 
   void _initializeMessagesListener() {
@@ -56,6 +77,7 @@ class ChatRoomController extends GetxController {
       if (chat != null) {
         chat!.messages = messages;
         update();
+
         WeeDebouncer.executeOnce(() {
           Puki.firestore.message.readMessages(
             userId: Puki.user.currentUser!.id,
@@ -64,26 +86,32 @@ class ChatRoomController extends GetxController {
           );
         });
       }
+    }, onError: (error) {
+      print('Error in messages stream: $error');
     });
+
+    update();
   }
 
   void _initializeUsersListener() {
-    if (chat != null) {
-      _usersSubscription = Puki.firestore.user.streamAllUsers(userIds: chat!.room!.users).listen((users) {
-        if (chat != null) {
-          chat!.members = users;
-          update();
-        }
-      });
-    }
+    _usersSubscription = Puki.firestore.user.streamAllUsers(userIds: chat!.room!.users).listen((users) {
+      if (chat != null) {
+        chat!.members = users;
+        update();
+      }
+    }, onError: (error) {
+      print('Error in user stream: $error');
+    });
   }
 
   void reset() {
+    chat = null;
+    isLoading = false;
     _roomSubscription?.cancel();
     _messagesSubscription?.cancel();
     _usersSubscription?.cancel();
-    isLoading = false;
-    chat = null;
+
+    update();
   }
 
   @override
