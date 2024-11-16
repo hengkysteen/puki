@@ -149,8 +149,8 @@ class MessagesCollection extends BaseCollection {
   }
 
   /// Send Message
-  Future<void> sendMessage({required PmUser user, required PmRoom room, required PmContent content, PmReply? repliedTo, bool isSystem = false}) async {
-    final message = await createMessage(senderId: user.id, room: room, messageContent: content, repliedTo: repliedTo);
+  Future<void> sendMessage({required PmUser user, required PmRoom room, required PmContent content, PmReply? replyTo, bool isSystem = false}) async {
+    final message = await createMessage(senderId: user.id, room: room, messageContent: content, repliedTo: replyTo);
     await Future.delayed(Duration(milliseconds: 500));
 
     if (!isSystem) {

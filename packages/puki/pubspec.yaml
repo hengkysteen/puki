@@ -10,11 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  #CORE
   cloud_firestore: ^5.4.5
+  firebase_auth: ^5.3.3
   universal_html: ^2.0.9
-  get: ^4.6.6
   wee_kit: ^2.0.3
- 
+
+  #UI
+  get: ^4.6.6
 
 dev_dependencies:
   flutter_test:
@@ -28,7 +32,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # To add assets to your package, add an assets section, like this:
   assets:
     - assets/

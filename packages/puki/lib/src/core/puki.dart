@@ -1,6 +1,7 @@
 // coverage:ignore-file
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:puki/src/core/auth/auth.dart';
 import 'package:puki/src/core/firestore/collections/room.dart';
 import 'package:puki/src/core/helper/log.dart';
 import 'package:puki/src/core/settings/settings.dart';
@@ -22,11 +23,12 @@ class Puki {
   static final PukiFirestore firestore = PukiFirestore();
   static final PukiUser user = PukiUser();
 
-  static Future<void> initialize({required dynamic firebaseApp, PmSetting? settings}) async {
+  static Future<void> initialize({required dynamic firebaseApp, PmSetting? settings, bool useFirebaseAuth = true}) async {
     app = firebaseApp;
     PukiSettings().setClientSettings(settings);
     devLog("Puki > initialize");
     firestore.setInstance(app);
+    PukiAuth().setInstance(app);
   }
 
   static void initializeTest({

@@ -38,6 +38,7 @@ class OnlineStatusListener {
   }
 
   void _beforeunload(html.Event e) {
+    print("_beforeunload");
     Puki.user.setOnline(false);
   }
 
