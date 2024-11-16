@@ -48,9 +48,12 @@ class PukiChatListItem extends StatelessWidget {
     members.removeWhere((userId) => userId == Puki.user.currentUser!.id);
 
     return StreamBuilder(
-      stream: Puki.firestore.user.streamAllUsers(userIds: members),
+      stream: Puki.user.currentUser == null ? Stream.empty() : Puki.firestore.user.streamAllUsers(userIds: members),
       builder: (context, snapshot) {
-        if (snapshot.hasError) throw Exception(snapshot.error.toString());
+        if (snapshot.hasError) {
+          print("error PukiChatListItem");
+          throw Exception(snapshot.error.toString());
+        }
         if (!snapshot.hasData) return const Center();
         final users = snapshot.data;
 

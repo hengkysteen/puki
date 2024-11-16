@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:puki/puki.dart';
-import 'package:puki/src/core/helper/log.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
 import 'package:wee_kit/wee_kit.dart';
@@ -160,7 +159,7 @@ class MessageController extends GetxController {
     }
   }
 
-  Future<void> sendMessage({required PmRoom room, required PmContent content, required void Function(PmContent content)? onMessageSended}) async {
+  Future<void> sendMessage({required PmRoom room, required PmContent content}) async {
     if (content.type == "text") {
       if (Controller.input.textController.text.isEmpty) return;
       Controller.input.textController.clear();
@@ -170,7 +169,7 @@ class MessageController extends GetxController {
 
     final replied = getReplyFromRepliedMessage(room);
 
-    Puki.firestore.message.sendMessage(room: room, user: Puki.user.currentUser!, repliedTo: replied, content: content);
+    Puki.firestore.message.sendMessage(room: room, user: Puki.user.currentUser!, replyTo: replied, content: content);
 
     setRepliedMessage(null);
 
@@ -178,8 +177,8 @@ class MessageController extends GetxController {
       Controller.input.setIsTyping(false);
     }
 
-    if (onMessageSended != null) {
-      onMessageSended(content);
+    if (Controller.chatRoom.clientCallBackOnMessageSended != null) {
+      Controller.chatRoom.clientCallBackOnMessageSended!(content);
     }
   }
 

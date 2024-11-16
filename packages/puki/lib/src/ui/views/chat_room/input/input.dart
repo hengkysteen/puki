@@ -37,11 +37,7 @@ class ChatRoomInput extends StatelessWidget {
         onPressed: () async {
           if (!context.mounted) return;
           final text = Controller.input.textController.text;
-          await Controller.message.sendMessage(
-            room: room!,
-            content: PmContent(type: "text", message: text),
-            onMessageSended: onMessageSend,
-          );
+          await Controller.message.sendMessage(room: room!, content: PmContent(type: "text", message: text));
         },
       ),
     );

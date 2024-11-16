@@ -23,7 +23,7 @@ class _RoomWidget {
   }
 
   Widget unreadBadge(PmRoom room) {
-    validateCurrentUser();
+ 
     final unread = room.unreadData![Puki.user.currentUser!.id];
     return Builder(builder: (context) {
       return Badge.count(

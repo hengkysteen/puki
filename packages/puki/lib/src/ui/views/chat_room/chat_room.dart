@@ -35,6 +35,7 @@ class _ChatRoomPageState extends State<PukiChatRoom> {
     Controller.register();
     Controller.input.addNewInput(widget.registerInputs);
     Controller.chatRoom.setup(widget.roomId, widget.createRoom);
+    Controller.chatRoom.clientCallBackOnMessageSended = widget.onMessageSended;
   }
 
   Widget _blankWidget({Widget? child}) {
@@ -63,7 +64,7 @@ class _ChatRoomPageState extends State<PukiChatRoom> {
             final data = Controller.chatRoom.chat;
 
             return Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.5),
               appBar: ChatRoomAppbar(data: data!),
               body: Column(
                 children: [

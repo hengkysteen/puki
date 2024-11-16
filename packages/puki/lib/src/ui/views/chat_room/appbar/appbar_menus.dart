@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/ui/controllers/controller.dart';
 import 'package:puki/src/ui/widgets/common.dart';
 
 class AppbarMenus extends StatelessWidget {
@@ -8,6 +9,7 @@ class AppbarMenus extends StatelessWidget {
 
   Map<String, PopupMenuItem<int>> get menus => {
         "GROUP_INFO": PopupMenuItem(value: 0, child: Text("Group Info")),
+        "CLEAR_CHAT": PopupMenuItem(value: 1, enabled: Controller.chatRoom.chat!.messages.isNotEmpty, child: Text("Clear Chat")),
         "LEAVE_GROUP": PopupMenuItem(value: 2, textStyle: TextStyle(color: Colors.red), child: Text("Leave Group")),
       };
 
