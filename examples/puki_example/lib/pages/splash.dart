@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:puki/puki.dart';
 import 'package:puki_example/services/user.dart';
-
 import 'home.dart';
 import 'login.dart';
 
@@ -23,13 +21,11 @@ class _SplashState extends State<Splash> {
 
     await UserControl().getCurrentUser();
 
+
     if (UserControl().user == null) {
       if (!mounted) return;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Login()));
     } else {
-      // puki package
-      await Puki.user.setCurrentUser(UserControl().user!.id);
-      // end puki package
       if (!mounted) return;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home()));
     }

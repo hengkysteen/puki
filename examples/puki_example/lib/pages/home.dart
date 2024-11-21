@@ -1,7 +1,4 @@
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:puki/puki.dart';
 import 'package:puki/puki_ui.dart';
 import 'package:puki_example/pages/login.dart';
 import 'package:puki_example/pages/message.dart';
@@ -27,8 +24,7 @@ class _HomeState extends State<Home> {
       _loading = true;
     });
     await Future.delayed(Duration(seconds: 1));
-    await Puki.user.logout();
-    await FirebaseAuth.instance.signOut();
+    await UserControl().logout();
     if (!context.mounted) return;
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Login()));
   }

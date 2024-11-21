@@ -9,14 +9,14 @@ class Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Messages"), centerTitle: true),
+      appBar: AppBar(title: Text("Messages"),centerTitle: false,),
       body: PukiChatList(
         onTap: (room) {
           final chatPage = PukiChatRoom(
             registerInputs: PukiModule.inputs,
             roomId: room.id,
             onMessageSended: (message) {
-              print("RESULT = ${message.toJson()}");
+              print("onMessageSended = ${message.toJson()}");
             },
           );
           Navigator.push(context, MaterialPageRoute(builder: (_) => chatPage));

@@ -19,7 +19,7 @@ void main() async {
   }
 
   final settings = PmSetting(
-    useFirebaseAuth: false,
+    useFirebaseAuth: Config.exampleType == ExampleType.withFirebaseAuth ? false : true,
     showDevLog: true,
     userOnlineStatusListener: true,
     firestoreEmulator: Config.isDevMode ? {"host": "localhost", "port": 8080} : null,

@@ -18,61 +18,75 @@ class UserControl {
   Future<void> getCurrentUser() async {
     if (Config.exampleType == ExampleType.withFirebaseAuth) {
       if (FirebaseAuth.instance.currentUser != null) {
-        final user = Db.getByEmail(FirebaseAuth.instance.currentUser!.email!);
-        if (user != null) {
-          _user = User.fromJson(user);
+        final userMap = Db.getByEmail(FirebaseAuth.instance.currentUser!.email!);
+        if (userMap != null) {
+          _user = User.fromJson(userMap);
         }
       }
     } else {
-      _user = await Storage.getUser();
+      final user = await Storage.getUser();
+      if (user != null) {
+        final userMap = Db.getByEmail(user.email);
+        if (userMap != null) {
+          _user = User.fromJson(userMap);
+        }
+      }
     }
-    print("user = $user");
+    if (_user != null) {
+      await Puki.user.setCurrentUser(_user!.id);
+    }
   }
 
   Future<void> login(String email, String password) async {
     final userDb = Db.getByEmail(email);
-
     if (userDb == null) throw Exception("no user with email on dummy database");
-
     if (Config.exampleType == ExampleType.withFirebaseAuth) {
       //  ExampleType.withFirebaseAuth
       final auth = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-
       final userMap = Db.getByEmail(auth.user!.email!);
-
       _user = User.fromJson(userMap!);
     } else {
       // ExampleType.withoutFirebaseAuth
       final userMap = Db.getByEmail(email);
       _user = User.fromJson(userMap!);
+      Storage.saveUser(_user!);
     }
-
     // start puki package
-    await Puki.user.setup(id: _user!.id, email: _user!.email, name: _user!.name, avatar: _user!.avatar);
+    await Puki.user.setup(id: _user!.id, email: _user!.email, name: _user!.name, avatar: _user!.avatar, isLogin: true);
     // end puki package
   }
 
   Future<void> register(String email, String password) async {
     final userMap = Db.getByEmail(email);
-
     if (userMap == null) throw Exception("no user with email on dummy database");
+
+    final userModel = User.fromJson(userMap);
 
     if (Config.exampleType == ExampleType.withFirebaseAuth) {
       //  ExampleType.withFirebaseAuth
-
       final auth = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       await auth.user?.updateProfile(displayName: userMap['name'], photoURL: userMap['avatar']);
 
-      _user = User.fromJson(userMap);
+      await Puki.user.setup(id: userModel.id, email: userModel.email, name: userModel.name, avatar: userModel.avatar, isLogin: false);
     } else {
       // ExampleType.withoutFirebaseAuth
 
-      _user = User.fromJson(userMap);
+      await Puki.user.setup(id: userModel.id, email: userModel.email, name: userModel.name, avatar: userModel.avatar, isLogin: false);
+      Storage.saveUser(userModel);
     }
+    _user = userModel;
 
-    // start puki package
-    await Puki.user.setup(id: _user!.id, email: _user!.email, name: _user!.name, avatar: _user!.avatar);
-    // end puki package
+    print("user = ${user?.toJson()}");
+  }
+
+  Future<void> logout() async {
+    await Puki.user.logout();
+    if (Config.exampleType == ExampleType.withFirebaseAuth) {
+      await FirebaseAuth.instance.signOut();
+    } else {
+      Storage.clearUser();
+    }
+    _user = null;
   }
 }
 
@@ -81,9 +95,7 @@ class User {
   final String name;
   final String email;
   final String avatar;
-
   User({required this.id, required this.name, required this.email, this.avatar = ""});
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

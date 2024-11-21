@@ -96,7 +96,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         ),
                       );
 
-                      Navigator.pop(context);
                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
                     },
               child: Text("Create"),
