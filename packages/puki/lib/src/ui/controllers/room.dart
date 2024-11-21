@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/ui/controllers/controller.dart';
 
 class RoomController extends GetxController {
   Future<PmRoom> createRoom({required PmUser user, required PmCreateRoom createRoom}) async {
@@ -23,5 +24,22 @@ class RoomController extends GetxController {
       room = response;
     }
     return room;
+  }
+
+  Future<void> leaveGroup(PmRoom room) async {
+    if (room.roomType == PmRoomType.private) throw Exception("Only for Group Room");
+    await Puki.firestore.room.removeMembers(room, [Puki.user.currentUser!.id]);
+    Puki.firestore.message.sendMessage(
+      user: Puki.user.currentUser!,
+      room: room,
+      content: PmContent(type: "text", message: "${Puki.user.currentUser!.firstName} leave group"),
+      isSystem: true,
+    );
+  }
+
+  Future<void> deleteGroup(PmRoom room) async {
+    if (room.roomType == PmRoomType.private) throw Exception("Only for Group Room");
+    await Puki.firestore.room.deleteRoom(room.id, Puki.user.currentUser!.id);
+    Controller.chatRoom.reset();
   }
 }

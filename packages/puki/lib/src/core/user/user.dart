@@ -18,11 +18,12 @@ class PukiUser {
   PmUser? get currentUser => _currentUser;
 
   Future<PmUser?> setCurrentUser(String userId) async {
-    devLog("PukiUser > setUser | $userId");
+    devLog("PukiUser > setCurrentUser | $userId");
     final user = await Puki.firestore.user.getSingleUser(userId);
 
     if (user != null) {
       _currentUser = user;
+
       if (PukiSettings().client.userOnlineStatusListener) {
         OnlineStatusListener().addOnlineStatusListener();
       }
@@ -32,72 +33,28 @@ class PukiUser {
     return user;
   }
 
-  // Future<void> register({
-  //   required String id,
-  //   required String name,
-  //   required String email,
-  //   String avatar = '',
-  //   Map<String, dynamic>? userData,
-  // }) async {
-  //   devLog("PukiUser > register | $name");
-  //   final model = PmUser(id: id, name: name, email: email, avatar: avatar, userData: userData);
-  //   try {
-  //     await PukiAuth().signUp(email, "${id}_$email");
-  //     await Puki.firestore.user.createUser(model);
-  //     await setCurrentUser(id);
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
-
-  Future<void> setup({required String id, required String name, required String email, String avatar = '', Map<String, dynamic>? userData}) async {
+  Future<void> setup({
+    required String id,
+    required String name,
+    required String email,
+    String avatar = '',
+    Map<String, dynamic>? userData,
+    bool isLogin = true,
+  }) async {
     devLog("PukiUser > setup | $name");
-    try {
+    if (isLogin) {
       await PukiAuth().signIn(email, "${id}_$email");
-      final user = await setCurrentUser(id);
-      if (user == null) {
-        final model = PmUser(id: id, name: name, email: email, avatar: avatar, userData: userData);
-        await Puki.firestore.user.createUser(model);
-        await setCurrentUser(id);
-      }
-    } catch (e) {
-      rethrow;
+    } else {
+      await PukiAuth().signUp(email, "${id}_$email");
+    }
+    final user = await setCurrentUser(id);
+
+    if (user == null) {
+      final model = PmUser(id: id, name: name, email: email, avatar: avatar, userData: userData);
+      await Puki.firestore.user.createUser(model);
+      await setCurrentUser(id);
     }
   }
-
-  // Future<void> login({required String id, required String email}) async {
-  //   devLog("PukiUser > login | $email");
-  //   try {
-  //     await PukiAuth().signIn(email, "${id}_$email");
-  //     await setCurrentUser(id);
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
-
-  // Future<PmUser> addUser({required String id, String name = '', String email = '', String avatar = '', Map<String, dynamic>? userData}) async {
-  //   PmUser? user;
-
-  //   user = await setCurrentUser(id);
-
-  //   if (user == null) {
-  //     final model = PmUser(
-  //       id: id,
-  //       name: name,
-  //       email: email,
-  //       avatar: avatar,
-  //       userData: userData,
-  //     );
-
-  //     await Puki.firestore.user.createUser(model);
-
-  //     user = await setCurrentUser(id);
-  //   }
-
-  //   devLog("PukiUser > addUser | ${user!.name}, Id = ${user.id} ");
-
-  //   return user;
-  // }
 
   Future<void> setOnline(bool status) async {
     if (currentUser == null) return;
@@ -121,22 +78,6 @@ class PukiUser {
     }
     _currentUser = null;
 
-    // await _auth!.signOut();
     await PukiAuth().signOut();
   }
-
-  // setAuthInstance(dynamic app) {
-  //   if (PukiSettings().client.useFirebaseAuth == false) return;
-  //   _auth = FirebaseAuth.instanceFor(app: app);
-
-  //   if (PukiSettings().client.authEmulator != null) {
-  //     _auth!.useAuthEmulator(
-  //       PukiSettings().client.authEmulator!['host'],
-  //       PukiSettings().client.authEmulator!['port'],
-  //     );
-  //     devLog("PukiUser > setAuthInstance | $app [EMULATOR]");
-  //   } else {
-  //     devLog("PukiUser > setAuthInstance | $app");
-  //   }
-  // }
 }

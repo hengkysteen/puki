@@ -218,4 +218,20 @@ class RoomsCollection extends BaseCollection {
     }
     return total;
   }
+
+  Future<void> removeMembers(PmRoom room, List<String> users) async {
+    if (users.contains(room.group!.createdBy)) throw Exception("Group owner can't be removed");
+
+    await updateUserInfo(userInfo: users.map((user) => PmUserInfo(id: user, isRoomMember: false)).toList(), room: room);
+
+    final unreadData = Map.from(room.group!.unread!)..removeWhere((key, _) => users.contains(key));
+
+    await collection.doc(room.id).update(
+      {
+        F.FORMER_USERS: FieldValue.arrayUnion(users),
+        F.USERS: FieldValue.arrayRemove(users),
+        F.GROUP_UNREAD: unreadData,
+      },
+    );
+  }
 }

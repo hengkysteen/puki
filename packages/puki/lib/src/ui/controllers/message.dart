@@ -201,6 +201,10 @@ class MessageController extends GetxController {
     return info;
   }
 
+  Future<void> clearMessage(String roomId, List<PmMessage> messages) async {
+    await Puki.firestore.message.hideMessages(userId: Puki.user.currentUser!.id, roomId: roomId, messages: messages);
+  }
+
   @override
   void onClose() {
     setRepliedMessage(null);

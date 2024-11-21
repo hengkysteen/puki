@@ -22,6 +22,11 @@ class ChatRoomController extends GetxController {
 
   PmChat? chat;
 
+  void setLoading(bool value) {
+    isLoading = value;
+    update();
+  }
+
   Future<void> setup(String? roomId, PmCreateRoom? createRoom) async {
     if (roomId != null && createRoom != null) throw Exception("Can't use both roomId and createRoom");
     isLoading = true;
@@ -52,7 +57,7 @@ class ChatRoomController extends GetxController {
         chat!.room = room;
         update();
 
-        if (chat!.room!.formerUsers.isNotEmpty) {
+        if (chat != null && chat!.room!.formerUsers.isNotEmpty) {
           Puki.firestore.user.getAllUsers(userIds: chat!.room!.formerUsers).then((former) {
             chat!.formerMembers = former;
             update();
@@ -110,7 +115,6 @@ class ChatRoomController extends GetxController {
     _roomSubscription?.cancel();
     _messagesSubscription?.cancel();
     _usersSubscription?.cancel();
-
     update();
   }
 

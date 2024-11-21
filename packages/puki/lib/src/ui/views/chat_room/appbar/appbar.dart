@@ -29,6 +29,8 @@ class ChatRoomAppbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      notificationPredicate: (notification) => false,
+      elevation: 1,
       leadingWidth: 46,
       centerTitle: false,
       titleSpacing: 5,
