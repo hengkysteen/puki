@@ -6,7 +6,7 @@ class _UserWidget {
   String? memberTypingStatus(List<PmUser?> users, String roomId) {
     List<PmUser?> members = List.from(users);
 
-    members.removeWhere((e) => e!.id == Puki.user.currentUser!.id);
+    members.removeWhere((e) => e!.id == PukiCore.user.currentUser!.id);
 
     final List<String> typingUsers = [];
 

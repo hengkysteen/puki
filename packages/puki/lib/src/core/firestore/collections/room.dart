@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/firestore/collections/message.dart';
+import 'package:puki/src/core/firestore/firestore.dart';
 import 'package:puki/src/core/helper/log.dart';
 import '../../helper/fields.dart';
 import 'base.dart';
@@ -10,7 +11,7 @@ class RoomsCollection extends BaseCollection {
   final FirebaseFirestore _firestore;
   RoomsCollection(this._firestore) : super();
 
-  MessagesCollection get _messagesCollection => Puki.firestore.message;
+  MessagesCollection get _messagesCollection => PukiFirestore().message;
 
   /// Room Collections Reference
   CollectionReference<Map<String, dynamic>> get collection => _firestore.collection(settings.getCollectionPath("rooms"));

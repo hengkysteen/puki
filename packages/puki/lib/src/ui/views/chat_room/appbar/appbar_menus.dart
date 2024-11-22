@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
 import 'package:puki/src/ui/widgets/common.dart';
 import 'package:wee_kit/loading.dart';
+
 
 class AppbarMenus extends StatelessWidget {
   final PmChat data;
@@ -38,8 +40,8 @@ class AppbarMenus extends StatelessWidget {
     }
     return [
       menus["CLEAR_CHAT"]!,
-      if (data.room!.group!.createdBy != Puki.user.currentUser!.id) menus["LEAVE_GROUP"]!,
-      if (data.room!.group!.createdBy == Puki.user.currentUser!.id) menus["DELETE_GROUP"]!,
+      if (data.room!.group!.createdBy != PukiCore.user.currentUser!.id) menus["LEAVE_GROUP"]!,
+      if (data.room!.group!.createdBy == PukiCore.user.currentUser!.id) menus["DELETE_GROUP"]!,
     ];
   }
 

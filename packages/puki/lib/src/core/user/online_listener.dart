@@ -1,18 +1,15 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:puki/puki.dart';
-import 'package:puki/src/core/settings/settings.dart';
-
 import 'package:universal_html/html.dart' as html;
+import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import '../helper/log.dart';
 
 class OnlineStatusListener {
-  // 1. Create a static variable that serves as the singleton _instance of this class.
   static final OnlineStatusListener _instance = OnlineStatusListener._internal();
-  // 2. Create a private constructor to prevent the creation of additional instances of this class.
+
   OnlineStatusListener._internal();
-  // 3. Create a factory method that returns the single instance (_instance) of this class.
 
   factory OnlineStatusListener() => _instance;
 
@@ -20,9 +17,9 @@ class OnlineStatusListener {
 
   final html.EventListener _webListener = _getWebListener();
 
-  PmUser? get currentUser => Puki.user.currentUser;
+  PmUser? get currentUser => PukiCore.user.currentUser;
 
-  int get debounceDuration => PukiSettings().client.onlineStatusDebounceDuration;
+  int get debounceDuration => PukiCore.settings.settings.onlineStatusDebounceDuration;
 
   bool lastStatus = true;
   bool statusFromDB = true;
@@ -39,7 +36,7 @@ class OnlineStatusListener {
 
   void _beforeunload(html.Event e) {
     print("_beforeunload");
-    Puki.user.setOnline(false);
+    PukiCore.user.setOnline(false);
   }
 
   void _setOnline() {
@@ -48,7 +45,7 @@ class OnlineStatusListener {
       _isOnline = true;
       _debounce(() {
         if (lastStatus != statusFromDB) {
-          Puki.user.setOnline(true);
+          PukiCore.user.setOnline(true);
           statusFromDB = true;
         }
       });
@@ -61,7 +58,7 @@ class OnlineStatusListener {
       _isOnline = false;
       _debounce(() {
         if (lastStatus != statusFromDB) {
-          Puki.user.setOnline(false);
+          PukiCore.user.setOnline(false);
           statusFromDB = false;
         }
       });
@@ -107,7 +104,7 @@ class _OnlineStatusListenerObserver extends WidgetsBindingObserver {
       OnlineStatusListener()._setOffline();
     }
     if (state == AppLifecycleState.detached) {
-      Puki.user.setOnline(false);
+      PukiCore.user.setOnline(false);
     }
   }
 }

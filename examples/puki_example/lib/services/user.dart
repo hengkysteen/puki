@@ -33,7 +33,7 @@ class UserControl {
       }
     }
     if (_user != null) {
-      await Puki.user.setCurrentUser(_user!.id);
+      await Puki.setUser(_user!.id);
     }
   }
 
@@ -52,7 +52,7 @@ class UserControl {
       Storage.saveUser(_user!);
     }
     // start puki package
-    await Puki.user.setup(id: _user!.id, email: _user!.email, name: _user!.name, avatar: _user!.avatar, isLogin: true);
+    await Puki.setupUser(id: _user!.id, email: _user!.email, name: _user!.name, avatar: _user!.avatar, isLogin: true);
     // end puki package
   }
 
@@ -67,11 +67,11 @@ class UserControl {
       final auth = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       await auth.user?.updateProfile(displayName: userMap['name'], photoURL: userMap['avatar']);
 
-      await Puki.user.setup(id: userModel.id, email: userModel.email, name: userModel.name, avatar: userModel.avatar, isLogin: false);
+      await Puki.setupUser(id: userModel.id, email: userModel.email, name: userModel.name, avatar: userModel.avatar, isLogin: false);
     } else {
       // ExampleType.withoutFirebaseAuth
 
-      await Puki.user.setup(id: userModel.id, email: userModel.email, name: userModel.name, avatar: userModel.avatar, isLogin: false);
+      await Puki.setupUser(id: userModel.id, email: userModel.email, name: userModel.name, avatar: userModel.avatar, isLogin: false);
       Storage.saveUser(userModel);
     }
     _user = userModel;
@@ -80,7 +80,7 @@ class UserControl {
   }
 
   Future<void> logout() async {
-    await Puki.user.logout();
+    await Puki.logout();
     if (Config.exampleType == ExampleType.withFirebaseAuth) {
       await FirebaseAuth.instance.signOut();
     } else {

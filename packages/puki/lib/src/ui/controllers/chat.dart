@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
 import 'package:wee_kit/debouncer.dart';
 
@@ -35,7 +36,7 @@ class ChatRoomController extends GetxController {
     if (roomId != null) {
       room = roomId;
     } else if (createRoom != null) {
-      final data = await Controller.room.createRoom(user: Puki.user.currentUser!, createRoom: createRoom);
+      final data = await Controller.room.createRoom(user: PukiCore.user.currentUser!, createRoom: createRoom);
       room = data.id;
     } else {
       throw Exception("Either roomId or createRoom must be provided");
@@ -50,7 +51,7 @@ class ChatRoomController extends GetxController {
     chat = PmChat(room: null, messages: [], members: [], formerMembers: []);
     update();
 
-    final roomStream = Puki.firestore.room.streamSingleRoom(roomId);
+    final roomStream = PukiCore.firestore.room.streamSingleRoom(roomId);
 
     _roomSubscription = roomStream.listen(
       (room) {
@@ -58,7 +59,7 @@ class ChatRoomController extends GetxController {
         update();
 
         if (chat != null && chat!.room!.formerUsers.isNotEmpty) {
-          Puki.firestore.user.getAllUsers(userIds: chat!.room!.formerUsers).then((former) {
+          PukiCore.firestore.user.getAllUsers(userIds: chat!.room!.formerUsers).then((former) {
             chat!.formerMembers = former;
             update();
           });
@@ -78,14 +79,14 @@ class ChatRoomController extends GetxController {
   }
 
   void _initializeMessagesListener() {
-    _messagesSubscription = Puki.firestore.message.streamMyMessages(userId: Puki.user.currentUser!.id, roomId: chat!.room!.id).listen((messages) {
+    _messagesSubscription = PukiCore.firestore.message.streamMyMessages(userId: PukiCore.user.currentUser!.id, roomId: chat!.room!.id).listen((messages) {
       if (chat != null) {
         chat!.messages = messages;
         update();
 
         WeeDebouncer.executeOnce(() {
-          Puki.firestore.message.readMessages(
-            userId: Puki.user.currentUser!.id,
+          PukiCore.firestore.message.readMessages(
+            userId: PukiCore.user.currentUser!.id,
             room: chat!.room!,
             messages: List.from(chat!.messages),
           );
@@ -99,7 +100,7 @@ class ChatRoomController extends GetxController {
   }
 
   void _initializeUsersListener() {
-    _usersSubscription = Puki.firestore.user.streamAllUsers(userIds: chat!.room!.users).listen((users) {
+    _usersSubscription = PukiCore.firestore.user.streamAllUsers(userIds: chat!.room!.users).listen((users) {
       if (chat != null) {
         chat!.members = users;
         update();

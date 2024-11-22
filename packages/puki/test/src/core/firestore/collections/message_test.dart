@@ -4,6 +4,7 @@ import 'package:puki/puki.dart';
 import 'package:puki/src/core/firestore/collections/message.dart';
 import 'package:puki/src/core/firestore/collections/room.dart';
 import 'package:puki/src/core/firestore/collections/user.dart';
+import 'package:puki/src/core/core.dart';
 import '../../../../data/message.dart';
 
 void main() {
@@ -14,14 +15,14 @@ void main() {
   setUpAll(() async {
     fakeFirestore = FakeFirebaseFirestore();
 
-    Puki.initializeTest(
+    PukiCore.initializeTest(
       mockFirestore: fakeFirestore,
       mockMessageCollection: MessagesCollection(fakeFirestore),
       mockRoomCollection: RoomsCollection(fakeFirestore),
       mockUserCollection: UsersCollection(fakeFirestore),
     );
 
-    messagesCollection = Puki.firestore.message;
+    messagesCollection = PukiCore.firestore.message;
 
     for (var message in dummyMessages) {
       await fakeFirestore.collection(messagePath).doc(message.id).set(message.toJson());
@@ -54,7 +55,7 @@ void main() {
     group("getAllMessages", () {
       test("Return all message from firestore", () async {
         // Act
-        final messages = await Puki.firestore.message.getAllMessages();
+        final messages = await PukiCore.firestore.message.getAllMessages();
         // Assert
         expect(messages, isA<List<PmMessage>>());
       });
@@ -67,7 +68,7 @@ void main() {
           await fakeFirestore.collection(messagePath).doc(message.id).delete();
         }
         // Act
-        final messages = await Puki.firestore.message.getAllMessages();
+        final messages = await PukiCore.firestore.message.getAllMessages();
 
         // Assert
         expect(messages, isEmpty);
@@ -80,7 +81,7 @@ void main() {
         const senderId = "1";
         final room = PmRoom(id: "111", type: "private", users: ["1", "2"]);
         // Act
-        final message = await Puki.firestore.message.createMessage(
+        final message = await PukiCore.firestore.message.createMessage(
           senderId: senderId,
           room: room,
           messageContent: PmContent(type: "text", message: "Hallo"),
@@ -100,7 +101,7 @@ void main() {
 
         // Act
         Future<PmMessage> createMessage() async {
-          return await Puki.firestore.message.createMessage(
+          return await PukiCore.firestore.message.createMessage(
             senderId: senderId,
             room: room,
             messageContent: PmContent(type: "text", message: "Hallo"),

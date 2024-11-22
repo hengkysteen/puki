@@ -24,13 +24,13 @@ class _RoomWidget {
 
   Widget unreadBadge(PmRoom room) {
  
-    final unread = room.unreadData![Puki.user.currentUser!.id];
+    final unread = room.unreadData![PukiCore.user.currentUser!.id];
     return Builder(builder: (context) {
       return Badge.count(
         smallSize: 16,
         count: unread!,
         backgroundColor: getPrimaryColor(context),
-        isLabelVisible: room.lastMessage!.by != Puki.user.currentUser!.id && unread > 0,
+        isLabelVisible: room.lastMessage!.by != PukiCore.user.currentUser!.id && unread > 0,
       );
     });
   }

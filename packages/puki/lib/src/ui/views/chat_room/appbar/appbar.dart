@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:puki/src/ui/views/chat_room/appbar/appbar_menus.dart';
 import 'package:puki/src/ui/views/chat_room/appbar/titles/group.dart';
@@ -21,7 +22,7 @@ class ChatRoomAppbar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget leading() {
     if (data.room!.roomType == PmRoomType.private) {
-      return PukiComp.user.getAvatar(data.members.firstWhere((e) => e.id != Puki.user.currentUser!.id));
+      return PukiComp.user.getAvatar(data.members.firstWhere((e) => e.id != PukiCore.user.currentUser!.id));
     }
     return PukiComp.room.groupAvatar(data.room!.group!, showShadow: false);
   }

@@ -1,35 +1,26 @@
 // coverage:ignore-file
-
-class PmSetting {
+class PmSettings {
+  /// set to `false` if your already use firebase auth
   final bool useFirebaseAuth;
 
-  /// Firebase Emulator
-  ///
-  /// eg :  {"host": "localhost", "port": 8080},
+  /// Firestore Emulator eg :  {"host": "localhost", "port": 8080},
   final Map<String, dynamic>? firestoreEmulator;
 
-  /// Firebase Auth
-  ///
-  /// eg :  {"host": "localhost", "port": 9099},
+  /// Firebase Auth Emulator eg :  {"host": "localhost", "port": 9099},
   final Map<String, dynamic>? authEmulator;
 
-  /// Firestore Collection Prefix
-  ///
-  /// default `puki_`
+  /// Firestore Collection Prefix. default `puki_`
   final String firestorePrefix;
 
   /// User online/offline listener
   final bool userOnlineStatusListener;
 
-  /// Online status Debounce Duration in milisecond
-  ///
-  /// default 2000 ,  minimum 1000
+  /// Online status Debounce Duration in milisecond. default 2000 ,  minimum 1000
   final int onlineStatusDebounceDuration;
 
   /// Developer log
   final bool showDevLog;
-
-  PmSetting({
+  PmSettings({
     this.useFirebaseAuth = true,
     this.showDevLog = true,
     this.userOnlineStatusListener = true,

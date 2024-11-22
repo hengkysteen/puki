@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 
 import '../../../../components/component.dart';
 
@@ -7,7 +8,7 @@ class PrivateTitle extends StatelessWidget {
   final PmChat chatData;
   const PrivateTitle({super.key, required this.chatData});
 
-  PmUser get receiver => chatData.members.firstWhere((e) => e.id != Puki.user.currentUser!.id);
+  PmUser get receiver => chatData.members.firstWhere((e) => e.id != PukiCore.user.currentUser!.id);
   String get status {
     return PukiComp.user.onlineStatusWithTyping(chatData.room!, receiver);
   }

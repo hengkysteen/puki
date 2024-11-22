@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
-import 'package:puki/puki_ui.dart';
 import 'package:puki_example/pages/create_group.dart';
 import 'package:puki_example/puki_modules/inputs/inputs.dart';
 import 'package:puki_example/services/user.dart';
-
-import '../widgets/image_cache.dart';
+import 'package:puki_example/widgets/image_cache.dart';
 
 enum ContactAction { CHAT, GET_USER_ID }
 

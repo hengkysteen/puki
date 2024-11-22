@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:puki/puki_ui.dart';
+import 'package:puki/puki.dart';
 import 'package:puki_example/pages/login.dart';
 import 'package:puki_example/pages/message.dart';
 import 'package:puki_example/services/user.dart';

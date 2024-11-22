@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:puki/src/ui/controllers/message.dart';
 import 'package:puki/src/ui/views/chat_room/bubble/replied.dart';
@@ -38,7 +39,7 @@ class ChatRoomBubble extends StatelessWidget {
 
     if (message.content.deleted) {
       return Text(
-        Puki.user.currentUser!.id == message.sender ? 'You deleted this message. ' : 'This message was deleted. ',
+        PukiCore.user.currentUser!.id == message.sender ? 'You deleted this message. ' : 'This message was deleted. ',
         style: TextStyle(color: Colors.grey),
       );
     }

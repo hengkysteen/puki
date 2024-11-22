@@ -18,14 +18,19 @@ void main() async {
     await FirebaseAuth.instance.useAuthEmulator("localhost", 9099);
   }
 
-  final settings = PmSetting(
-    useFirebaseAuth: Config.exampleType == ExampleType.withFirebaseAuth ? false : true,
-    showDevLog: true,
-    userOnlineStatusListener: true,
-    firestoreEmulator: Config.isDevMode ? {"host": "localhost", "port": 8080} : null,
-  );
+  final firestoreEmulator = Config.isDevMode ? {"host": "localhost", "port": 8080} : null;
+  final useFirebaseAuth = Config.exampleType == ExampleType.withFirebaseAuth ? false : true;
 
-  await Puki.initialize(firebaseApp: app, settings: settings);
+  await Puki.initialize(
+    firebaseApp: app,
+    settings: PmSettings(
+      useFirebaseAuth: useFirebaseAuth,
+      showDevLog: true,
+      userOnlineStatusListener: true,
+      firestoreEmulator: firestoreEmulator,
+    ),
+  );
+  
 
   runApp(
     MaterialApp(

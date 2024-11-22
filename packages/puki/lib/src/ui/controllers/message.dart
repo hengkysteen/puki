@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
 import 'package:wee_kit/wee_kit.dart';
@@ -96,7 +97,7 @@ class MessageController extends GetxController {
 
     // Filtering menus
     // if current user not sender show only PmReply and copy
-    if (Puki.user.currentUser!.id != message.sender) {
+    if (PukiCore.user.currentUser!.id != message.sender) {
       menus = menus.where((menu) => menu.value == 0 || menu.value == 2).toList();
     }
     // remove "menu copy" if type not text
@@ -149,11 +150,11 @@ class MessageController extends GetxController {
   }
 
   void deleteMessage(PmMessage message) async {
-    if (Puki.user.currentUser!.id == message.sender && !message.isSystem) {
-      final batch = Puki.firestore.instance.batch();
-      batch.update(Puki.firestore.message.collection.doc(message.id), {"content.deleted": true});
+    if (PukiCore.user.currentUser!.id == message.sender && !message.isSystem) {
+      final batch = PukiCore.firestore.instance.batch();
+      batch.update(PukiCore.firestore.message.collection.doc(message.id), {"content.deleted": true});
       if (message.id == Controller.chatRoom.chat!.messages.last.id) {
-        batch.update(Puki.firestore.room.collection.doc(message.roomId), {"last_message.message": "This message was deleted. "});
+        batch.update(PukiCore.firestore.room.collection.doc(message.roomId), {"last_message.message": "This message was deleted. "});
       }
       await batch.commit();
     }
@@ -169,7 +170,7 @@ class MessageController extends GetxController {
 
     final replied = getReplyFromRepliedMessage(room);
 
-    Puki.firestore.message.sendMessage(room: room, user: Puki.user.currentUser!, replyTo: replied, content: content);
+    PukiCore.firestore.message.sendMessage(room: room, user: PukiCore.user.currentUser!, replyTo: replied, content: content);
 
     setRepliedMessage(null);
 
@@ -202,7 +203,7 @@ class MessageController extends GetxController {
   }
 
   Future<void> clearMessage(String roomId, List<PmMessage> messages) async {
-    await Puki.firestore.message.hideMessages(userId: Puki.user.currentUser!.id, roomId: roomId, messages: messages);
+    await PukiCore.firestore.message.hideMessages(userId: PukiCore.user.currentUser!.id, roomId: roomId, messages: messages);
   }
 
   @override

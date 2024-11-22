@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
-import 'package:puki/puki_ui.dart';
 import 'package:puki_example/pages/contact.dart';
 import 'package:puki_example/puki_modules/inputs/camera/photo/photo.dart';
 import 'package:puki_example/puki_modules/inputs/document/document.dart';
@@ -16,7 +15,6 @@ class CreateGroupPage extends StatefulWidget {
 class _CreateGroupPageState extends State<CreateGroupPage> {
   final TextEditingController _nameCtrl = TextEditingController();
   List<PmUser> users = [];
-  final currentUser = Puki.user.currentUser!.id;
 
   @override
   Widget build(BuildContext context) {

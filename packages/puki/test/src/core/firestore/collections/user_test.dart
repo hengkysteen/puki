@@ -5,6 +5,7 @@ import 'package:puki/src/core/firestore/collections/message.dart';
 import 'package:puki/src/core/firestore/collections/room.dart';
 import 'package:puki/src/core/firestore/collections/user.dart';
 import 'package:puki/src/core/helper/fields.dart';
+import 'package:puki/src/core/core.dart';
 import '../../../../data/user.dart';
 part 'user_test/get_single_user.dart';
 part 'user_test/stream_single_user.dart';
@@ -20,14 +21,14 @@ void main() {
   late final UsersCollection usersCollection;
   const String messagePath = "puki_users";
 
-  Puki.initializeTest(
+  PukiCore.initializeTest(
     mockFirestore: fakeFirestore,
     mockMessageCollection: MessagesCollection(fakeFirestore),
     mockRoomCollection: RoomsCollection(fakeFirestore),
     mockUserCollection: UsersCollection(fakeFirestore),
   );
 
-  usersCollection = Puki.firestore.user;
+  usersCollection = PukiCore.firestore.user;
 
   setUp(() async {
     // Populate the fakeFirestore with dummy users

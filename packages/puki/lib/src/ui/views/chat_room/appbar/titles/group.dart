@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:wee_kit/wee_kit.dart';
 
@@ -29,7 +30,7 @@ class GroupTitle extends StatelessWidget {
     members.sort((a, b) => b.compareTo(a));
 
     // Remove the current user's name from the list
-    members.remove(Puki.user.currentUser!.firstName.toCapitalize());
+    members.remove(PukiCore.user.currentUser!.firstName.toCapitalize());
 
     // Add "You" to the list to represent the current user
     members.add("You");

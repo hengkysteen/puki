@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/helper/log.dart';
+import 'package:puki/src/core/core.dart';
 
 class InputController extends GetxController {
   List<PmInputType?> inputTypes = [];
@@ -10,7 +11,7 @@ class InputController extends GetxController {
   bool isTyping = false;
   PmInputType? inputType;
 
-  static PmUser? get currentUser => Puki.user.currentUser;
+  static PmUser? get currentUser => PukiCore.user.currentUser;
 
   PmInputType? getInputTypeFromContentType(String? contentType) {
     return inputTypes.firstWhere((e) => e!.type == contentType, orElse: () => null);
@@ -40,11 +41,11 @@ class InputController extends GetxController {
   void onTyping(String txt, String roomId) {
     if (txt.isNotEmpty) {
       if (isTyping == false) {
-        Puki.firestore.user.setTypingStatus(userId: currentUser!.id, status: true, roomId: roomId);
+        PukiCore.firestore.user.setTypingStatus(userId: currentUser!.id, status: true, roomId: roomId);
         setIsTyping(true);
       }
     } else {
-      Puki.firestore.user.setTypingStatus(userId: currentUser!.id, status: false, roomId: roomId);
+      PukiCore.firestore.user.setTypingStatus(userId: currentUser!.id, status: false, roomId: roomId);
       setIsTyping(false);
     }
   }
@@ -58,7 +59,7 @@ class InputController extends GetxController {
   void onClose() {
     if (isTyping) {
       isTyping = false;
-      Puki.firestore.user.setTypingStatus(userId: currentUser!.id, status: false, roomId: null);
+      PukiCore.firestore.user.setTypingStatus(userId: currentUser!.id, status: false, roomId: null);
     }
     textController.clear();
     focusNode.dispose();

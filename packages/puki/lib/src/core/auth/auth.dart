@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/core/helper/log.dart';
-import 'package:puki/src/core/settings/settings.dart';
 
 class PukiAuth {
   // 1. Create a static variable that serves as the singleton _instance of this class.
@@ -13,14 +13,14 @@ class PukiAuth {
   FirebaseAuth? _auth;
 
   void setInstance(dynamic app) {
-    if (PukiSettings().client.useFirebaseAuth == false) return;
+    if (PukiCore.settings.settings.useFirebaseAuth == false) return;
 
     _auth = FirebaseAuth.instanceFor(app: app);
 
-    if (PukiSettings().client.authEmulator != null) {
+    if (PukiCore.settings.settings.authEmulator != null) {
       _auth!.useAuthEmulator(
-        PukiSettings().client.authEmulator!['host'],
-        PukiSettings().client.authEmulator!['port'],
+        PukiCore.settings.settings.authEmulator!['host'],
+        PukiCore.settings.settings.authEmulator!['port'],
       );
       devLog("PukiAuth > setAuthInstance | $app [EMULATOR]");
     } else {
@@ -29,17 +29,17 @@ class PukiAuth {
   }
 
   Future<void> signIn(String email, String password) async {
-    if (PukiSettings().client.useFirebaseAuth == false) return;
+    if (PukiCore.settings.settings.useFirebaseAuth == false) return;
     await _auth!.signInWithEmailAndPassword(email: email, password: password);
   }
 
   Future<void> signUp(String email, String password) async {
-    if (PukiSettings().client.useFirebaseAuth == false) return;
+    if (PukiCore.settings.settings.useFirebaseAuth == false) return;
     await _auth!.createUserWithEmailAndPassword(email: email, password: password);
   }
 
   Future<void> signOut() async {
-    if (PukiSettings().client.useFirebaseAuth == false) return;
+    if (PukiCore.settings.settings.useFirebaseAuth == false) return;
     await _auth!.signOut();
   }
 }

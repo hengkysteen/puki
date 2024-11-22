@@ -26,21 +26,21 @@ class _MessageWidget {
   AlignmentGeometry alignment(PmMessage message) {
     if (message.isSystem) return Alignment.center;
     if (message.roomType == 'private') {
-      return message.sender == Puki.user.currentUser!.id ? Alignment.centerRight : Alignment.centerLeft;
+      return message.sender == PukiCore.user.currentUser!.id ? Alignment.centerRight : Alignment.centerLeft;
     }
     return Alignment.centerLeft;
   }
 
   CrossAxisAlignment crossAxisAlignment(PmMessage message) {
     if (message.roomType == 'private') {
-      return message.sender == Puki.user.currentUser!.id ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+      return message.sender == PukiCore.user.currentUser!.id ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     }
     return CrossAxisAlignment.start;
   }
 
   // Color? getColor(BuildContext context, PmMessage message) {
   //   final theme = Theme.of(context);
-  //   if (message.sender == Puki.user.currentUser!.id) {
+  //   if (message.sender == PukiCore.user.currentUser!.id) {
   //     if (theme.useMaterial3) {
   //       return WeeColor.shadeColor(Theme.of(context).colorScheme.primary, 40);
   //     } else {
@@ -67,7 +67,7 @@ class _MessageWidget {
       primaryColor = theme.primaryColor;
     }
 
-    if (message.sender == Puki.user.currentUser!.id) {
+    if (message.sender == PukiCore.user.currentUser!.id) {
       return brightness == Brightness.light ? WeeColor.shadeColor(primaryColor, 20) : theme.colorScheme.onPrimary;
     } else {
       return brightness == Brightness.light ? Colors.white : Colors.black;
@@ -75,7 +75,7 @@ class _MessageWidget {
   }
 
   Color? getReplayColor(BuildContext context, PmMessage message) {
-    if (message.sender == Puki.user.currentUser!.id) return WeeColor.shadeColor(getPrimaryColor(context), 30);
+    if (message.sender == PukiCore.user.currentUser!.id) return WeeColor.shadeColor(getPrimaryColor(context), 30);
     return Colors.grey.shade50;
   }
 
@@ -125,8 +125,8 @@ class _MessageWidget {
     return BorderRadius.only(
       bottomLeft: const Radius.circular(10),
       bottomRight: const Radius.circular(10),
-      topLeft: Radius.circular(message.sender == Puki.user.currentUser!.id ? 10 : 0),
-      topRight: Radius.circular(message.sender == Puki.user.currentUser!.id ? 0 : 10),
+      topLeft: Radius.circular(message.sender == PukiCore.user.currentUser!.id ? 10 : 0),
+      topRight: Radius.circular(message.sender == PukiCore.user.currentUser!.id ? 0 : 10),
     );
   }
 

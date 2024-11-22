@@ -1,23 +1,24 @@
 // coverage:ignore-file
-
 import 'package:puki/src/core/helper/fields.dart';
 import 'package:puki/src/core/models/index.dart';
 
-class PukiSettings {
-  static final PukiSettings _instance = PukiSettings._internal();
+class PukiCoreSettings {
+  static final PukiCoreSettings _instance = PukiCoreSettings._internal();
 
-  PukiSettings._internal();
+  PukiCoreSettings._internal();
 
-  factory PukiSettings() => _instance;
+  factory PukiCoreSettings() => _instance;
 
-  late final PmSetting client;
+  static late final PmSettings _settings;
 
-  void setClientSettings(PmSetting? settings) {
-    client = settings ?? PmSetting();
+  PmSettings get settings => _settings;
+
+  void setClientSettings(PmSettings? settings) {
+    _settings = settings ?? PmSettings();
   }
 
   String getCollectionPath(String collectionName) {
-    String prefix = client.firestorePrefix.isEmpty ? F.FIRESTORE_COLLECTION_PREFIX : client.firestorePrefix;
+    String prefix = settings.firestorePrefix.isEmpty ? F.FIRESTORE_COLLECTION_PREFIX : settings.firestorePrefix;
     return "$prefix$collectionName";
   }
 }

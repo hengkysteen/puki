@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:puki/puki.dart';
-import 'package:puki/puki_ui.dart';
 import 'package:puki_example/config.dart';
 import 'package:puki_example/puki_modules/services/firebase_storage/firebase_storage.dart';
 import 'package:puki_example/widgets/image_cache.dart';
@@ -188,7 +187,7 @@ class InputCameraPhoto {
 
     if (!context.mounted) return;
 
-    PukiUi.sendCustomMessage(room: room, content: content);
+    Puki.sendCustomMessage(room: room, content: content);
     Navigator.pop(context);
   }
 }

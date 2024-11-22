@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:puki/puki.dart';
-import 'package:puki/puki_ui.dart';
 import 'package:puki_example/config.dart';
 import 'package:puki_example/puki_modules/services/firebase_storage/firebase_storage.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -83,7 +82,7 @@ class DokumenInput {
 
       await Future.delayed(Duration(seconds: 1));
 
-      await PukiUi.sendCustomMessage(room: room, content: content);
+      await Puki.sendCustomMessage(room: room, content: content);
 
       if (!context.mounted) return;
 

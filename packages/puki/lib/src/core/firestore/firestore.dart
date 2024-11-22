@@ -1,9 +1,8 @@
 // coverage:ignore-file
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/core/firestore/collections/room.dart';
 import 'package:puki/src/core/firestore/collections/user.dart';
-import 'package:puki/src/core/settings/settings.dart';
 import '../helper/log.dart';
 import 'collections/message.dart';
 
@@ -25,10 +24,10 @@ class PukiFirestore {
   void setInstance(dynamic app) async {
     instance = FirebaseFirestore.instanceFor(app: app!);
 
-    if (PukiSettings().client.firestoreEmulator != null) {
+    if (PukiCore.settings.settings.firestoreEmulator != null) {
       instance.useFirestoreEmulator(
-        PukiSettings().client.firestoreEmulator!['host'],
-        PukiSettings().client.firestoreEmulator!['port'],
+        PukiCore.settings.settings.firestoreEmulator!['host'],
+        PukiCore.settings.settings.firestoreEmulator!['port'],
       );
       devLog("PukiFirestore > setInstance | $app [EMULATOR]");
     } else {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:puki/src/ui/widgets/common.dart';
 
@@ -27,7 +28,7 @@ class PukiChatListItem extends StatelessWidget {
     if (room.type == "group") {
       return Text(room.group!.name);
     }
-    final receiver = users.firstWhereOrNull((e) => e.id != Puki.user.currentUser!.id);
+    final receiver = users.firstWhereOrNull((e) => e.id != PukiCore.user.currentUser!.id);
     return Text(receiver!.name);
   }
 
@@ -36,7 +37,7 @@ class PukiChatListItem extends StatelessWidget {
       return PukiComp.room.groupAvatar(room.group!);
     }
 
-    final receiver = users.firstWhereOrNull((e) => e.id != Puki.user.currentUser!.id);
+    final receiver = users.firstWhereOrNull((e) => e.id != PukiCore.user.currentUser!.id);
     return PukiComp.user.getAvatar(receiver);
   }
 
@@ -45,10 +46,10 @@ class PukiChatListItem extends StatelessWidget {
     // COPY USERS FROM ROOM
     final List<String> members = List.from(room.users);
     // REMOVE CURRENT USER FROM MEMBERS
-    members.removeWhere((userId) => userId == Puki.user.currentUser!.id);
+    members.removeWhere((userId) => userId == PukiCore.user.currentUser!.id);
 
     return StreamBuilder(
-      stream: Puki.user.currentUser == null ? Stream.empty() : Puki.firestore.user.streamAllUsers(userIds: members),
+      stream: PukiCore.user.currentUser == null ? Stream.empty() : PukiCore.firestore.user.streamAllUsers(userIds: members),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           print("error PukiChatListItem");
@@ -78,7 +79,7 @@ class PukiChatListItem extends StatelessWidget {
       positiveText: 'Delete',
       onPositive: () async {
         nav.pop();
-        await Puki.firestore.room.hideRoom(room, Puki.user.currentUser!.id);
+        await PukiCore.firestore.room.hideRoom(room, PukiCore.user.currentUser!.id);
         if (!nav.mounted) return;
         showSnackBar(nav.context, "Room deleted.");
       },

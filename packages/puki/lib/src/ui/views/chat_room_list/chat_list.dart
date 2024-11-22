@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
+import 'package:puki/src/core/core.dart';
 import 'chat_list_item.dart';
 
 class PukiChatList extends StatelessWidget {
@@ -18,7 +19,7 @@ class PukiChatList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Puki.user.currentUser == null ? Stream.empty() : Puki.firestore.room.streamAllUserRooms(Puki.user.currentUser!.id),
+      stream: PukiCore.user.currentUser == null ? Stream.empty() : PukiCore.firestore.room.streamAllUserRooms(PukiCore.user.currentUser!.id),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           throw snapshot.error!;
