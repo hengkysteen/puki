@@ -22,5 +22,7 @@ class PmInputType {
     required this.onIconTap,
     this.insideBubble = true,
     this.showInMenu = true,
-  });
+  }) {
+    assert(type == type.toLowerCase(), "Type must be in lowercase");
+  }
 }

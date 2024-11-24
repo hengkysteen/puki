@@ -17,10 +17,9 @@ class PukiUser {
 
   // Getter //
   UsersCollection get _userCollection => PukiFirestore().user;
+
   PmSettings get _settings => PukiCore.settings.settings;
   // End Getter//
-
-
 
   static PmUser? _currentUser;
 
