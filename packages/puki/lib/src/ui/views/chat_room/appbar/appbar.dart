@@ -22,9 +22,9 @@ class ChatRoomAppbar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget leading() {
     if (data.room!.roomType == PmRoomType.private) {
-      return PukiComp.user.getAvatar(data.members.firstWhere((e) => e.id != PukiCore.user.currentUser!.id));
+      return Pc.user.getAvatar(data.members.firstWhere((e) => e.id != PukiCore.user.currentUser!.id));
     }
-    return PukiComp.room.groupAvatar(data.room!.group!, showShadow: false);
+    return Pc.room.groupAvatar(data.room!.group!, showShadow: false);
   }
 
   @override
@@ -35,15 +35,17 @@ class ChatRoomAppbar extends StatelessWidget implements PreferredSizeWidget {
       leadingWidth: 46,
       centerTitle: false,
       titleSpacing: 5,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          leading(),
-          getTitle(),
-        ],
-      ),
+      title: data.members.isEmpty
+          ? SizedBox()
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                leading(),
+                getTitle(),
+              ],
+            ),
       actions: [
         AppbarMenus(data: data),
         SizedBox(width: 5),

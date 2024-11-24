@@ -52,7 +52,7 @@ class GroupTitle extends StatelessWidget {
       );
     }
 
-    final memberTyping = PukiComp.user.memberTypingStatus(chatData.members, chatData.room!.id);
+    final memberTyping = Pc.user.memberTypingStatus(chatData.members, chatData.room!.id);
 
     if (memberTyping != null) {
       text = memberTyping;

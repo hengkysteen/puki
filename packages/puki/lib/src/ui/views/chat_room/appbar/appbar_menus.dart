@@ -3,8 +3,7 @@ import 'package:puki/puki.dart';
 import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
 import 'package:puki/src/ui/widgets/common.dart';
-import 'package:wee_kit/loading.dart';
-
+import 'package:wee_kit/wee_kit.dart';
 
 class AppbarMenus extends StatelessWidget {
   final PmChat data;
@@ -72,7 +71,7 @@ class AppbarMenus extends StatelessWidget {
         Navigator.pop(context);
 
         try {
-          WeeLoading.showOverlay(
+          WeeShow.loadingOverlay(
             context,
             barrierColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
             customChild: Center(child: CircularProgressIndicator()),
@@ -101,7 +100,7 @@ class AppbarMenus extends StatelessWidget {
         Navigator.pop(context);
 
         try {
-          WeeLoading.showOverlay(
+          WeeShow.loadingOverlay(
             context,
             barrierColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
             customChild: Center(child: CircularProgressIndicator()),

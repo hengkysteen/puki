@@ -23,8 +23,8 @@ class _RoomWidget {
   }
 
   Widget unreadBadge(PmRoom room) {
- 
     final unread = room.unreadData![PukiCore.user.currentUser!.id];
+
     return Builder(builder: (context) {
       return Badge.count(
         smallSize: 16,

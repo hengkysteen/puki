@@ -1,28 +1,6 @@
-part of 'component.dart';
+part of '../component.dart';
 
-class _MessageWidget {
-  Widget contextMenuTile(String name, IconData icons) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(name, style: TextStyle(fontSize: 14)),
-        Icon(icons, size: 15),
-      ],
-    );
-  }
-
-  Future<int?>? showContextMenus(BuildContext context, LongPressStartDetails longPress, List<PopupMenuItem<int>> menus, PmMessage message) async {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromLTRB(
-      longPress.globalPosition.dx,
-      longPress.globalPosition.dy,
-      overlay.size.width - longPress.globalPosition.dx,
-      overlay.size.height - longPress.globalPosition.dy,
-    );
-    final value = await showMenu(context: context, position: position, constraints: BoxConstraints(maxWidth: 150, minWidth: 150), items: menus);
-    return value;
-  }
-
+class _MessageWidget with ContextualMenu {
   AlignmentGeometry alignment(PmMessage message) {
     if (message.isSystem) return Alignment.center;
     if (message.roomType == 'private') {
@@ -37,23 +15,6 @@ class _MessageWidget {
     }
     return CrossAxisAlignment.start;
   }
-
-  // Color? getColor(BuildContext context, PmMessage message) {
-  //   final theme = Theme.of(context);
-  //   if (message.sender == PukiCore.user.currentUser!.id) {
-  //     if (theme.useMaterial3) {
-  //       return WeeColor.shadeColor(Theme.of(context).colorScheme.primary, 40);
-  //     } else {
-  //       return Theme.of(context).primaryColor;
-  //     }
-  //   } else {
-  //     if (theme.useMaterial3) {
-  //       return WeeColor.shadeColor(Theme.of(context).colorScheme.primary, 20);
-  //     } else {
-  //       return Theme.of(context).cardColor;
-  //     }
-  //   }
-  // }
 
   Color getColor(BuildContext context, PmMessage message) {
     final theme = Theme.of(context);

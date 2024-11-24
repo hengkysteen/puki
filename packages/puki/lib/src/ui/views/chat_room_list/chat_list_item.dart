@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_utils/get_utils.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:puki/src/ui/widgets/common.dart';
+import 'package:puki/src/utils/list.dart';
 
 class PukiChatListItem extends StatelessWidget {
   final PmRoom room;
@@ -15,7 +15,7 @@ class PukiChatListItem extends StatelessWidget {
   Widget _widgetLastMessage(List<PmUser?> users, PmRoom room) {
     String text = room.lastMessage?.message ?? '';
 
-    String? typingStatus = PukiComp.user.memberTypingStatus(users, room.id);
+    String? typingStatus = Pc.user.memberTypingStatus(users, room.id);
 
     if (typingStatus != null) {
       return Text(typingStatus, maxLines: 1, overflow: TextOverflow.ellipsis);
@@ -34,11 +34,11 @@ class PukiChatListItem extends StatelessWidget {
 
   Widget roomAvatar(PmRoom room, List<PmUser> users) {
     if (room.type == "group") {
-      return PukiComp.room.groupAvatar(room.group!);
+      return Pc.room.groupAvatar(room.group!);
     }
 
     final receiver = users.firstWhereOrNull((e) => e.id != PukiCore.user.currentUser!.id);
-    return PukiComp.user.getAvatar(receiver);
+    return Pc.user.getAvatar(receiver);
   }
 
   @override
@@ -62,7 +62,7 @@ class PukiChatListItem extends StatelessWidget {
           leading: roomAvatar(room, users!),
           title: roomName(room, users),
           subtitle: _widgetLastMessage(users, room),
-          trailing: PukiComp.room.unreadXlastMessageTime(room),
+          trailing: Pc.room.unreadXlastMessageTime(room),
           onTap: onTap == null ? null : () => onTap!(room),
           onLongPress: overrideLongPress == null ? () async => await deleteRoom(context, room) : () => overrideLongPress!(room),
         );

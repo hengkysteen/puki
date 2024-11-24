@@ -10,7 +10,7 @@ class PrivateTitle extends StatelessWidget {
 
   PmUser get receiver => chatData.members.firstWhere((e) => e.id != PukiCore.user.currentUser!.id);
   String get status {
-    return PukiComp.user.onlineStatusWithTyping(chatData.room!, receiver);
+    return Pc.user.onlineStatusWithTyping(chatData.room!, receiver);
   }
 
   @override
@@ -29,7 +29,7 @@ class PrivateTitle extends StatelessWidget {
           Visibility(
             visible: status.isNotEmpty,
             child: Text(
-              PukiComp.user.onlineStatusWithTyping(chatData.room!, receiver),
+              Pc.user.onlineStatusWithTyping(chatData.room!, receiver),
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
             ),
           )

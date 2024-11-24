@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/ui/components/component.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
-import 'package:wee_kit/debouncer.dart';
+import 'package:wee_kit/wee_kit.dart';
 
 /// A bubble that displays a replay message.
 class BubbleReplied extends StatelessWidget {
@@ -69,14 +69,14 @@ class BubbleReplied extends StatelessWidget {
         constraints: BoxConstraints(minWidth: minWidth(replyTo)),
         margin: EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
-          borderRadius: PukiComp.message.getBubbleBorderRadius(message),
-          color: PukiComp.message.getShadeColor(Theme.of(context).primaryColor, 30),
+          borderRadius: Pc.message.getBubbleBorderRadius(message),
+          color: Pc.message.getShadeColor(Theme.of(context).primaryColor, 30),
         ),
         child: Stack(
           children: [
             temp(context),
             Container(
-              color: PukiComp.message.getShadeColor(Theme.of(context).primaryColor, 30),
+              color: Pc.message.getShadeColor(Theme.of(context).primaryColor, 30),
               padding: EdgeInsets.all(5),
               // height: 50,
               child: Column(

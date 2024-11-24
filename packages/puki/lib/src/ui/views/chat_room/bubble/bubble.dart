@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/components/component.dart';
-import 'package:puki/src/ui/controllers/message.dart';
+import 'package:puki/src/ui/controllers/controller.dart';
 import 'package:puki/src/ui/views/chat_room/bubble/replied.dart';
 
 class ChatRoomBubble extends StatelessWidget {
@@ -24,12 +23,12 @@ class ChatRoomBubble extends StatelessWidget {
 
   Color? _bubbleColor(BuildContext context, PmMessage message, PmInputType? inputType) {
     if (message.reply != null) {
-      return PukiComp.message.getColor(context, message);
+      return Pc.message.getColor(context, message);
     }
     if (inputType != null) {
-      return inputType.insideBubble ? PukiComp.message.getColor(context, message) : null;
+      return inputType.insideBubble ? Pc.message.getColor(context, message) : null;
     }
-    return PukiComp.message.getColor(context, message);
+    return Pc.message.getColor(context, message);
   }
 
   Widget bubbleMessageContent(BuildContext context, PmInputType? inputType, PmMessage message) {
@@ -56,18 +55,19 @@ class ChatRoomBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (messageOwner == null) return SizedBox();
-    return GetBuilder<MessageController>(
-      builder: (ctrl) {
+    return ValueListenableBuilder(
+      valueListenable: Controller.message.highlightedRepliedMessage,
+      builder: (context, _, __) {
         if (message.isSystem) return _systemMessage();
 
         return Container(
           key: messageKey,
-          color: ctrl.highlightedRepliedMessage == message.id ? Colors.black.withOpacity(0.2) : null,
+          color: Controller.message.highlightedRepliedMessage.value == message.id ? Colors.black.withOpacity(0.2) : null,
           child: GestureDetector(
-            onLongPressStart: message.content.deleted ? null : (d) => ctrl.showMenus(context, d, message),
+            onLongPressStart: message.content.deleted ? null : (d) => Pc.message.showContextualMenus(context, d, message),
             child: Container(
               margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-              alignment: PukiComp.message.alignment(message),
+              alignment: Pc.message.alignment(message),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,12 +81,12 @@ class ChatRoomBubble extends StatelessWidget {
                             ? ClipOval(
                                 child: ColorFiltered(
                                   colorFilter: ColorFilter.mode(Colors.grey.withOpacity(0.8), BlendMode.color),
-                                  child: PukiComp.user.getAvatar(messageOwner),
+                                  child: Pc.user.getAvatar(messageOwner),
                                 ),
                               )
                             : Container(
                                 margin: EdgeInsets.only(top: 5),
-                                child: PukiComp.user.getAvatar(messageOwner),
+                                child: Pc.user.getAvatar(messageOwner),
                               ),
                         SizedBox(width: 8),
                       ],
@@ -111,19 +111,19 @@ class ChatRoomBubble extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          borderRadius: PukiComp.message.getBubbleBorderRadius(message),
+                          borderRadius: Pc.message.getBubbleBorderRadius(message),
                           color: _bubbleColor(context, message, messageInputType),
-                          boxShadow: PukiComp.message.getBoxShadow(messageInputType, message),
+                          boxShadow: Pc.message.getBoxShadow(messageInputType, message),
                         ),
                         constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width - 120)),
                         child: Column(
-                          crossAxisAlignment: PukiComp.message.crossAxisAlignment(message),
+                          crossAxisAlignment: Pc.message.crossAxisAlignment(message),
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             BubbleReplied(message: message),
                             bubbleMessageContent(context, messageInputType, message),
                             SizedBox(height: 2),
-                            PukiComp.message.readStatus(message),
+                            Pc.message.readStatus(message),
                           ],
                         ),
                       ),

@@ -17,7 +17,7 @@ class ChatRoomInput extends StatelessWidget {
     return IconButton(
       icon: Icon(Icons.add),
       onPressed: () {
-        PukiComp.input.showInputTypeMenus(
+        Pc.input.showInputTypeMenus(
           context: context,
           types: Controller.input.inputTypes,
           onSelect: (type) {
@@ -35,9 +35,7 @@ class ChatRoomInput extends StatelessWidget {
       child: IconButton(
         icon: const Icon(Icons.send),
         onPressed: () async {
-          if (!context.mounted) return;
-          final text = Controller.input.textController.text;
-          await Controller.message.sendMessage(room: room!, content: PmContent(type: "text", message: text));
+          await Controller.message.sendMessage(room: room!, content: PmContent(type: "text", message: Controller.input.textController.text));
         },
       ),
     );
@@ -58,7 +56,7 @@ class ChatRoomInput extends StatelessWidget {
               children: <Widget>[
                 widgetInputType(context),
                 Expanded(
-                  child: PukiComp.input.textField(
+                  child: Pc.input.textField(
                     controller: Controller.input.textController,
                     focusNode: Controller.input.focusNode,
                     hintText: 'Message',

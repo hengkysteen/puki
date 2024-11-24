@@ -1,8 +1,6 @@
 part of 'component.dart';
 
 class _UserWidget {
-
-  
   String? memberTypingStatus(List<PmUser?> users, String roomId) {
     List<PmUser?> members = List.from(users);
 
@@ -58,9 +56,6 @@ class _UserWidget {
     if (user == null || user.isDeleted) {
       return CircleAvatar(backgroundColor: Colors.grey);
     }
-    return CustomCircleAvatar(
-      firstLetterAvatar: user.firstName[0].toUpperCase(),
-      imageUrl: user.avatar,
-    );
+    return CustomCircleAvatar(firstLetterAvatar: user.firstName[0].toUpperCase(), imageUrl: user.avatar);
   }
 }
