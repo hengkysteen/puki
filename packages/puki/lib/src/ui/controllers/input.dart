@@ -1,41 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/helper/log.dart';
 import 'package:puki/src/core/core.dart';
 
-class InputController extends GetxController {
-  List<PmInputType?> inputTypes = [];
+class InputController {
   final FocusNode focusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
+
   bool isTyping = false;
-  PmInputType? inputType;
+
+  static final List<PmInputType?> _inputTypes = [];
+
+  List<PmInputType?> get inputTypes => _inputTypes;
 
   static PmUser? get currentUser => PukiCore.user.currentUser;
 
-  PmInputType? getInputTypeFromContentType(String? contentType) {
-    return inputTypes.firstWhere((e) => e!.type == contentType, orElse: () => null);
-  }
+  void addInputs(List<PmInputType> data) {
+    final checkTypes = <String>{};
 
-  void addNewInput(List<PmInputType> data) {
-    // Create a set to store unique types
-    final existingTypes = inputTypes.map((e) => e!.type).toSet();
-
-    // Filter new data, ensuring there are no duplicate types
-    for (var item in data) {
-      if (existingTypes.contains(item.type)) {
-        throw ArgumentError("Type '${item.type}' already exists. Each type must be unique.");
+    for (var input in data) {
+      if (!checkTypes.add(input.type)) {
+        throw Exception("Duplicate type found: ${input.type}");
+      }
+      if (input.type == "text") {
+        throw Exception("Text is a default system type and cannot be added");
       }
     }
-    inputTypes.clear();
-    inputTypes.addAll(data);
-    inputTypes.sort((a, b) => a!.name.compareTo(b!.name));
-    devLog("InputVm > addNewInput ${inputTypes.map((e) => e!.name).toList()}");
-  }
+    _inputTypes.clear();
+    _inputTypes.addAll(data);
+    _inputTypes.sort((a, b) => a!.name.compareTo(b!.name));
 
-  void setInputType(PmInputType? type) {
-    inputType = type;
-    update();
+    devLog("InputController > addInputs ${_inputTypes.map((e) => e!.name).toList()}");
   }
 
   void onTyping(String txt, String roomId) {
@@ -52,17 +47,17 @@ class InputController extends GetxController {
 
   void setIsTyping(bool value) {
     isTyping = value;
-    update();
   }
 
-  @override
-  void onClose() {
+  PmInputType? getInputTypeFromContentType(String? contentType) {
+    return inputTypes.firstWhere((e) => e!.type == contentType, orElse: () => null);
+  }
+
+  void reset() {
     if (isTyping) {
       isTyping = false;
       PukiCore.firestore.user.setTypingStatus(userId: currentUser!.id, status: false, roomId: null);
     }
     textController.clear();
-    focusNode.dispose();
-    super.onClose();
   }
 }

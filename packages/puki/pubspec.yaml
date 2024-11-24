@@ -1,7 +1,8 @@
 name: puki
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+publish_to: none  # temporary ( remove when not use dependencies from git)
+homepage: https://github.com/hengkysteen/puki
 
 environment:
   sdk: ">=2.18.2 <3.0.0"
@@ -15,10 +16,12 @@ dependencies:
   cloud_firestore: ^5.4.5
   firebase_auth: ^5.3.3
   universal_html: ^2.0.9
-  wee_kit: ^2.0.3
-
+  
   #UI
-  get: ^4.6.6
+  wee_kit:
+    git:
+      url: https://github.com/hengkysteen/wee_kit.git
+      ref: master
 
 dev_dependencies:
   flutter_test:

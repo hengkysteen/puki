@@ -1,11 +1,11 @@
 import 'dart:async';
-
-import 'package:get/get.dart';
 import 'package:puki/puki.dart';
 import 'package:puki/src/core/core.dart';
 import 'package:puki/src/ui/controllers/controller.dart';
 
-class RoomController extends GetxController {
+class RoomController {
+
+  
   Future<PmRoom> createRoom({required PmUser user, required PmCreateRoom createRoom}) async {
     late PmRoom room;
     // CreateRoom is Private
